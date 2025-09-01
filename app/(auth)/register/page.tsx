@@ -49,7 +49,7 @@ export default function RegisterPage() {
                <CardContent className="space-y-4">
                   <AuthMessage />
                   {/* Google Sign Up */}
-                  <GoogleButton disabled>Continue with Google</GoogleButton>
+                  <GoogleButton>Continue with Google</GoogleButton>
 
                   <div className="relative">
                      <div className="absolute inset-0 flex items-center">

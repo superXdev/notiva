@@ -48,7 +48,7 @@ export default function LoginPage() {
                <CardContent className="space-y-4">
                   <AuthMessage />
                   {/* Google Sign In */}
-                  <GoogleButton disabled>Continue with Google</GoogleButton>
+                  <GoogleButton>Continue with Google</GoogleButton>
 
                   <div className="relative">
                      <div className="absolute inset-0 flex items-center">

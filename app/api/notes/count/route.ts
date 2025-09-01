@@ -18,17 +18,12 @@ export async function GET(request: NextRequest) {
       const { searchParams } = new URL(request.url);
       const folderId = searchParams.get("folderId");
 
-      console.log(
-         `API: Counting notes for user ${user.id}, folderId: ${folderId}`
-      );
-
       // Validate folderId format if provided
       if (folderId && folderId.trim() !== "") {
          // Basic UUID validation
          const uuidRegex =
             /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
          if (!uuidRegex.test(folderId)) {
-            console.error(`API: Invalid folderId format: ${folderId}`);
             return NextResponse.json(
                {
                   error: "Invalid folder ID format",
@@ -49,17 +44,14 @@ export async function GET(request: NextRequest) {
       // Apply folder filter if specified
       if (folderId && folderId.trim() !== "") {
          query = query.eq("folder_id", folderId);
-         console.log(`API: Filtering by folder_id = ${folderId}`);
       } else {
          // If no folder specified, get all notes (including those without folders)
          query = query.or("folder_id.is.null,folder_id.not.is.null");
-         console.log(`API: Getting all notes (with and without folders)`);
       }
 
       const { count, error } = await query;
 
       if (error) {
-         console.error(`API: Error counting notes:`, error);
          return NextResponse.json(
             {
                error: error.message,
@@ -69,7 +61,6 @@ export async function GET(request: NextRequest) {
          );
       }
 
-      console.log(`API: Count result: ${count || 0} notes`);
       return NextResponse.json({ count: count || 0 });
    } catch (error) {
       return NextResponse.json(

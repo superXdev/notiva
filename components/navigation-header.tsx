@@ -15,12 +15,24 @@ import {
    LogOut,
    User,
    ChevronDown,
+   Mail,
 } from "lucide-react";
 import { MobileSidebar } from "@/components/mobile-sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { signOut } from "@/app/(auth)/actions";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 
-export function NavigationHeader() {
+interface NavigationHeaderProps {
+   user: SupabaseUser;
+}
+
+export function NavigationHeader({ user }: NavigationHeaderProps) {
+   // Get user initials for avatar
+   const getUserInitials = (email: string) => {
+      const name = email.split("@")[0];
+      return name.substring(0, 2).toUpperCase();
+   };
+
    return (
       <header className="h-14 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
          <div className="flex items-center justify-between h-full px-4">
@@ -54,18 +66,28 @@ export function NavigationHeader() {
                      >
                         <Avatar className="h-7 w-7">
                            <AvatarFallback className="text-xs bg-primary/10">
-                              <User className="h-4 w-4" />
+                              {getUserInitials(user.email || "")}
                            </AvatarFallback>
                         </Avatar>
-                        <span className="hidden sm:block text-sm">User</span>
+                        <span className="hidden sm:block text-sm">
+                           {user.email}
+                        </span>
                         <ChevronDown className="h-4 w-4" />
                      </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                     <DropdownMenuItem>
-                        <User className="h-4 w-4 mr-2" />
-                        Profile
+                     <DropdownMenuItem className="flex items-center gap-2 py-3">
+                        <Mail className="h-4 w-4" />
+                        <div className="flex flex-col">
+                           <span className="text-sm font-medium">
+                              {user.email}
+                           </span>
+                           <span className="text-xs text-muted-foreground">
+                              Signed in with Google
+                           </span>
+                        </div>
                      </DropdownMenuItem>
+                     <DropdownMenuSeparator />
                      <DropdownMenuItem>
                         <Settings className="h-4 w-4 mr-2" />
                         Settings

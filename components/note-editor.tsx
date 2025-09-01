@@ -29,7 +29,7 @@ import remarkBreaks from "remark-breaks";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { exportToPDF } from "@/lib/pdf-export";
-import { MobileSidebar } from "./mobile-sidebar";
+
 import { MarkdownNavigation } from "./markdown-navigation";
 import { FolderMoveDropdown } from "./folder-move-dropdown";
 
@@ -215,10 +215,8 @@ export function NoteEditor() {
    if (!selectedNote) {
       return (
          <div className="flex-1 flex flex-col bg-background">
-            <div className="md:hidden border-b border-border p-3 flex items-center justify-between">
-               <MobileSidebar />
+            <div className="md:hidden border-b border-border p-3 flex items-center justify-center">
                <h1 className="text-lg font-semibold">Notes</h1>
-               <div className="w-8" /> {/* Spacer for centering */}
             </div>
 
             <div className="flex-1 flex items-center justify-center">
@@ -240,8 +238,7 @@ export function NoteEditor() {
             {/* Mobile Header */}
             <div className="md:hidden p-3">
                <div className="flex items-center justify-between mb-2">
-                  <MobileSidebar />
-                  <h1 className="text-lg font-semibold truncate flex-1 mx-3">
+                  <h1 className="text-lg font-semibold truncate flex-1">
                      {title || "Untitled Note"}
                   </h1>
                   <div className="flex items-center space-x-1">

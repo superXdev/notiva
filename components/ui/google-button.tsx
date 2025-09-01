@@ -1,25 +1,60 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/client";
 
 interface GoogleButtonProps {
    children: React.ReactNode;
    className?: string;
-   onClick?: () => void;
    disabled?: boolean;
 }
 
 export function GoogleButton({
    children,
    className,
-   onClick,
    disabled,
 }: GoogleButtonProps) {
+   const handleGoogleSignIn = async () => {
+      try {
+         // Check if environment variables are available
+         if (
+            !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+            !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+         ) {
+            alert(
+               "Missing Supabase configuration. Please check your environment variables."
+            );
+            return;
+         }
+
+         const supabase = createClient();
+
+         const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+               redirectTo: `${window.location.origin}/auth/callback`,
+            },
+         });
+
+         if (error) {
+            alert(`Google sign-in failed: ${error.message}`);
+         }
+      } catch (error) {
+         alert(
+            `Google sign-in failed: ${
+               error instanceof Error ? error.message : "Unknown error"
+            }`
+         );
+      }
+   };
+
    return (
       <Button
          variant="outline"
          className={cn("w-full", className)}
          size="lg"
-         onClick={onClick}
+         onClick={handleGoogleSignIn}
          disabled={disabled}
       >
          <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">

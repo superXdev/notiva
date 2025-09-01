@@ -31,12 +31,13 @@ A modern note-taking application built with Next.js and Supabase.
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
    ```
 
 4. **Set up database tables**
 
    -  In Supabase dashboard: Go to SQL Editor
-   -  Copy and paste the contents of `supabase-schema.sql`
+   -  Copy and paste the contents of `database-setup.sql`
    -  Run the SQL to create tables, indexes, and RLS policies
 
 5. **Configure email templates**
@@ -44,7 +45,14 @@ A modern note-taking application built with Next.js and Supabase.
    -  In Supabase dashboard: Authentication > Email Templates
    -  Set "Confirm signup" URL to: `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email`
 
-6. **Run the application**
+6. **Configure Google OAuth (Optional)**
+
+   -  In Supabase dashboard: Authentication > Providers
+   -  Enable Google provider
+   -  Add your Google OAuth credentials (Client ID and Client Secret)
+   -  Set the authorized redirect URI to: `https://your-project-ref.supabase.co/auth/v1/callback`
+
+7. **Run the application**
    ```bash
    pnpm dev
    ```
@@ -52,6 +60,7 @@ A modern note-taking application built with Next.js and Supabase.
 ## Features
 
 -  ✅ User authentication (login/register)
+-  ✅ Google OAuth sign-in
 -  ✅ Email confirmation
 -  ✅ Protected routes
 -  ✅ Dark/light theme

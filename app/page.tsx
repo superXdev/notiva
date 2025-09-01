@@ -17,7 +17,7 @@ export default async function HomePage() {
 
    return (
       <div className="h-screen flex flex-col bg-background">
-         <NavigationHeader />
+         <NavigationHeader user={user} />
          <div className="flex flex-1 overflow-hidden">
             <div className="hidden md:block">
                <Sidebar />
