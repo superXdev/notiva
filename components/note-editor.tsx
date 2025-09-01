@@ -23,6 +23,7 @@ import {
    ChevronRight,
    Globe,
    Link,
+   Undo2,
 } from "lucide-react";
 import { useNotes } from "@/contexts/notes-context";
 import { useToast } from "@/hooks/use-toast";
@@ -35,6 +36,7 @@ import { exportToPDF } from "@/lib/pdf-export";
 
 import { MarkdownNavigation } from "./markdown-navigation";
 import { FolderMoveDropdown } from "./folder-move-dropdown";
+import { AIEnhancementButton } from "./ai-enhancement-button";
 
 export function NoteEditor() {
    const {
@@ -55,16 +57,23 @@ export function NoteEditor() {
    const [isExportingPDF, setIsExportingPDF] = useState(false);
    const [isPublishing, setIsPublishing] = useState(false);
    const [currentTab, setCurrentTab] = useState("edit");
+   const [contentHistory, setContentHistory] = useState<string[]>([]);
+   const [historyIndex, setHistoryIndex] = useState(-1);
 
    useEffect(() => {
       if (selectedNote) {
          setTitle(selectedNote.title || "");
          setContent(selectedNote.content || "");
          setHasUnsavedChanges(false);
+         // Reset history when switching to a new note
+         setContentHistory([]);
+         setHistoryIndex(-1);
       } else {
          setTitle("");
          setContent("");
          setHasUnsavedChanges(false);
+         setContentHistory([]);
+         setHistoryIndex(-1);
       }
    }, [
       selectedNote?.id,
@@ -220,6 +229,45 @@ export function NoteEditor() {
          }
       }
    };
+
+   const handleAIEnhance = (enhancedContent: string) => {
+      // Save current content to history before enhancing
+      addToHistory(content);
+      setContent(enhancedContent);
+      setHasUnsavedChanges(true);
+   };
+
+   const addToHistory = (currentContent: string) => {
+      setContentHistory((prev) => {
+         const newHistory = prev.slice(0, historyIndex + 1);
+         newHistory.push(currentContent);
+         // Keep only last 10 entries to prevent memory issues
+         return newHistory.slice(-10);
+      });
+      setHistoryIndex((prev) => Math.min(prev + 1, 9));
+   };
+
+   const handleUndo = () => {
+      if (historyIndex > 0) {
+         const newIndex = historyIndex - 1;
+         setHistoryIndex(newIndex);
+         setContent(contentHistory[newIndex]);
+         setHasUnsavedChanges(true);
+      }
+   };
+
+   const canUndo = historyIndex > 0;
+
+   // Debounced function to add content to history
+   useEffect(() => {
+      const timeoutId = setTimeout(() => {
+         if (content && selectedNote) {
+            addToHistory(content);
+         }
+      }, 1000); // Wait 1 second after user stops typing
+
+      return () => clearTimeout(timeoutId);
+   }, [content, selectedNote?.id]);
 
    const getFolderPath = (folderId?: string) => {
       if (!folderId) return [];
@@ -516,22 +564,40 @@ export function NoteEditor() {
                onValueChange={setCurrentTab}
                className="h-full flex flex-col"
             >
-               <TabsList className="mx-3 md:mx-4 mt-3 md:mt-4 w-fit">
-                  <TabsTrigger value="edit" className="text-sm">
-                     <Edit className="h-4 w-4 mr-1" />
-                     <span className="hidden sm:inline">Edit</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="preview" className="text-sm">
-                     <Eye className="h-4 w-4 mr-1" />
-                     <span className="hidden sm:inline">Preview</span>
-                  </TabsTrigger>
-                  <div className="ml-auto">
+               <div className="mx-3 md:mx-4 mt-3 md:mt-4 flex items-center justify-between">
+                  <TabsList className="w-fit">
+                     <TabsTrigger value="edit" className="text-sm">
+                        <Edit className="h-4 w-4 mr-1" />
+                        <span className="hidden sm:inline">Edit</span>
+                     </TabsTrigger>
+                     <TabsTrigger value="preview" className="text-sm">
+                        <Eye className="h-4 w-4 mr-1" />
+                        <span className="hidden sm:inline">Preview</span>
+                     </TabsTrigger>
+                  </TabsList>
+
+                  <div className="flex items-center space-x-2">
+                     <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleUndo}
+                        disabled={!canUndo}
+                        className="gap-2"
+                     >
+                        <Undo2 className="h-4 w-4" />
+                        <span className="hidden sm:inline">Undo</span>
+                     </Button>
+                     <AIEnhancementButton
+                        content={content}
+                        onEnhance={handleAIEnhance}
+                        disabled={!content.trim()}
+                     />
                      <MarkdownNavigation
                         content={content}
                         isPreviewMode={currentTab === "preview"}
                      />
                   </div>
-               </TabsList>
+               </div>
 
                <TabsContent
                   value="edit"

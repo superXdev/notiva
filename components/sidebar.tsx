@@ -42,6 +42,7 @@ import {
    ChevronRight,
    Download,
    HelpCircle,
+   Edit,
 } from "lucide-react";
 import { useNotes } from "@/contexts/notes-context";
 import { cn } from "@/lib/utils";
@@ -70,6 +71,7 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
       isLoading,
       createNote,
       createFolder,
+      updateFolder,
       createLabel,
       deleteFolder,
       deleteLabel,
@@ -88,11 +90,22 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
    const [newLabelColor, setNewLabelColor] = useState("#3b82f6");
    const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
    const [isCreateLabelOpen, setIsCreateLabelOpen] = useState(false);
+   const [isRenameFolderOpen, setIsRenameFolderOpen] = useState(false);
+   const [folderToRename, setFolderToRename] = useState<{
+      id: string;
+      name: string;
+   } | null>(null);
+   const [renameFolderName, setRenameFolderName] = useState("");
 
-   const handleCreateNote = () => {
-      const title = `Note ${notes.length + 1}`;
-      createNote(title, "", selectedFolder?.id);
-      onNoteSelect?.();
+   const handleCreateNote = async () => {
+      try {
+         const title = `Note ${notes.length + 1}`;
+         await createNote(title, "", selectedFolder?.id);
+         onNoteSelect?.();
+      } catch (error) {
+         console.error("Error creating note:", error);
+         // You might want to show a toast or alert here
+      }
    };
 
    const handleCreateFolder = () => {
@@ -109,6 +122,21 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
          setNewLabelName("");
          setIsCreateLabelOpen(false);
       }
+   };
+
+   const handleRenameFolder = () => {
+      if (folderToRename && renameFolderName.trim()) {
+         updateFolder(folderToRename.id, { name: renameFolderName.trim() });
+         setRenameFolderName("");
+         setFolderToRename(null);
+         setIsRenameFolderOpen(false);
+      }
+   };
+
+   const openRenameDialog = (folder: { id: string; name: string }) => {
+      setFolderToRename(folder);
+      setRenameFolderName(folder.name);
+      setIsRenameFolderOpen(true);
    };
 
    const handleNoteSelect = (noteId: string) => {
@@ -231,6 +259,36 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                         </div>
                      </DialogContent>
                   </Dialog>
+
+                  {/* Rename Folder Dialog */}
+                  <Dialog
+                     open={isRenameFolderOpen}
+                     onOpenChange={setIsRenameFolderOpen}
+                  >
+                     <DialogContent className="w-[90vw] max-w-md">
+                        <DialogHeader>
+                           <DialogTitle>Rename Folder</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                           <Input
+                              placeholder="Folder name"
+                              value={renameFolderName}
+                              onChange={(e) =>
+                                 setRenameFolderName(e.target.value)
+                              }
+                              onKeyDown={(e) =>
+                                 e.key === "Enter" && handleRenameFolder()
+                              }
+                           />
+                           <Button
+                              onClick={handleRenameFolder}
+                              className="w-full"
+                           >
+                              Rename Folder
+                           </Button>
+                        </div>
+                     </DialogContent>
+                  </Dialog>
                </div>
 
                {/* Scrollable folders container - height for at least 3 items (3 * 32px + 4px spacing = 100px) */}
@@ -283,6 +341,14 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                                       </Button>
                                    </DropdownMenuTrigger>
                                    <DropdownMenuContent>
+                                      <DropdownMenuItem
+                                         onClick={() =>
+                                            openRenameDialog(folder)
+                                         }
+                                      >
+                                         <Edit className="h-4 w-4 mr-2" />
+                                         Rename
+                                      </DropdownMenuItem>
                                       <DropdownMenuItem
                                          onClick={() => deleteFolder(folder.id)}
                                          className="text-destructive"

@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import type { Note, Folder, Label, AppState } from "@/lib/types";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
+import { NotesService } from "@/lib/notes-service";
 
 interface PaginationInfo {
    page: number;
@@ -132,42 +133,15 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
    // Note count functions
    const getNoteCount = useCallback(async (folderId?: string) => {
       try {
-         const url = folderId
-            ? `/api/notes/count?folderId=${folderId}`
-            : "/api/notes/count";
-
-         const controller = new AbortController();
-         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
-         try {
-            const response = await fetch(url, { signal: controller.signal });
-            clearTimeout(timeoutId);
-            if (!response.ok) {
-               const errorText = await response.text();
-               console.error(
-                  `Failed to get note count: ${response.status} - ${errorText}`
-               );
-               throw new Error(`Failed to get note count: ${response.status}`);
-            }
-
-            const { count } = await response.json();
-            return count || 0;
-         } catch (err) {
-            if (err instanceof Error && err.name === "AbortError") {
-               console.error("Note count request timed out");
-               return 0;
-            }
-            throw err;
-         }
+         return await NotesService.getNoteCount(folderId);
       } catch (err) {
          console.error("Failed to get note count:", err);
-         // Return 0 instead of throwing to prevent the error from bubbling up
          return 0;
       }
    }, []);
 
    const refreshNoteCountsWithFolders = useCallback(
-      async (folders: Folder[]) => {
+      async (folders: Folder[], labels: Label[]) => {
          try {
             console.log("Refreshing note counts with folders...");
 
@@ -175,46 +149,30 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
             const allCount = await getNoteCount();
             console.log("Total count:", allCount);
 
-            // Get counts for each folder
-            const folderCounts: Record<string, number> = {};
-            for (const folder of folders) {
-               try {
-                  const count = await getNoteCount(folder.id);
-                  folderCounts[folder.id] = count;
-                  console.log(
-                     `Folder "${folder.name}" (${folder.id}): ${count} notes`
-                  );
-               } catch (err) {
-                  console.error(
-                     `Failed to get count for folder ${folder.id}:`,
-                     err
-                  );
-                  folderCounts[folder.id] = 0;
-               }
-            }
+            // Get counts for all folders in batch
+            const folderIds = folders.map((f) => f.id);
+            const folderCounts = await NotesService.getNoteCounts(folderIds);
 
             // Get counts for each label
-            const labelCounts: Record<string, number> = {};
-            for (const label of state.labels) {
-               const count = state.notes.filter((note) =>
-                  note.labels.includes(label.name)
-               ).length;
-               labelCounts[label.id] = count;
-               console.log(
-                  `Label "${label.name}" (${label.id}): ${count} notes`
-               );
-            }
+            const labelNames = labels.map((l) => l.name);
+            const labelCounts = await NotesService.getLabelCounts(labelNames);
+
+            // Transform label counts to use label IDs as keys
+            const labelCountsById: Record<string, number> = {};
+            labels.forEach((label) => {
+               labelCountsById[label.id] = labelCounts[label.name] || 0;
+            });
 
             setNoteCounts({
                all: allCount,
                byFolder: folderCounts,
-               byLabel: labelCounts,
+               byLabel: labelCountsById,
             });
 
             console.log("Note counts updated:", {
                all: allCount,
                byFolder: folderCounts,
-               byLabel: labelCounts,
+               byLabel: labelCountsById,
             });
          } catch (err) {
             console.error("Failed to refresh note counts:", err);
@@ -226,7 +184,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
             });
          }
       },
-      [getNoteCount, state.labels, state.notes]
+      [getNoteCount]
    );
 
    const refreshNoteCounts = useCallback(async () => {
@@ -237,44 +195,34 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
          const allCount = await getNoteCount();
          console.log("Total count:", allCount);
 
-         // Get counts for each folder
-         const folderCounts: Record<string, number> = {};
-         for (const folder of state.folders) {
-            try {
-               const count = await getNoteCount(folder.id);
-               folderCounts[folder.id] = count;
-               console.log(
-                  `Folder "${folder.name}" (${folder.id}): ${count} notes`
-               );
-            } catch (err) {
-               console.error(
-                  `Failed to get count for folder ${folder.id}:`,
-                  err
-               );
-               folderCounts[folder.id] = 0;
-            }
-         }
+         // Get current state values to avoid stale closures
+         const currentFolders = state.folders;
+         const currentLabels = state.labels;
+
+         // Get counts for all folders in batch
+         const folderIds = currentFolders.map((f) => f.id);
+         const folderCounts = await NotesService.getNoteCounts(folderIds);
 
          // Get counts for each label
-         const labelCounts: Record<string, number> = {};
-         for (const label of state.labels) {
-            const count = state.notes.filter((note) =>
-               note.labels.includes(label.name)
-            ).length;
-            labelCounts[label.id] = count;
-            console.log(`Label "${label.name}" (${label.id}): ${count} notes`);
-         }
+         const labelNames = currentLabels.map((l) => l.name);
+         const labelCounts = await NotesService.getLabelCounts(labelNames);
+
+         // Transform label counts to use label IDs as keys
+         const labelCountsById: Record<string, number> = {};
+         currentLabels.forEach((label) => {
+            labelCountsById[label.id] = labelCounts[label.name] || 0;
+         });
 
          setNoteCounts({
             all: allCount,
             byFolder: folderCounts,
-            byLabel: labelCounts,
+            byLabel: labelCountsById,
          });
 
          console.log("Note counts updated:", {
             all: allCount,
             byFolder: folderCounts,
-            byLabel: labelCounts,
+            byLabel: labelCountsById,
          });
       } catch (err) {
          console.error("Failed to refresh note counts:", err);
@@ -285,7 +233,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
             byLabel: {},
          });
       }
-   }, [state.folders, state.labels, state.notes, getNoteCount]);
+   }, [getNoteCount]);
 
    const refreshFolderCount = useCallback(
       async (folderId: string) => {
@@ -315,65 +263,74 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       [getNoteCount]
    );
 
-   // Refresh note counts when folders are loaded
-   useEffect(() => {
-      if (state.folders.length > 0) {
-         refreshNoteCounts();
-      }
-   }, [state.folders, refreshNoteCounts]);
+   // Note: Removed automatic refreshNoteCounts useEffect to prevent infinite loops
+   // Note counts are now refreshed manually when needed (after CRUD operations)
 
-   // Debug: Monitor noteCounts changes
-   useEffect(() => {
-      console.log("noteCounts state changed:", noteCounts);
-   }, [noteCounts]);
+   // Debug: Monitor noteCounts changes (commented out to reduce console noise)
+   // useEffect(() => {
+   //    console.log("noteCounts state changed:", noteCounts);
+   // }, [noteCounts]);
 
-   const loadData = useCallback(async (page = 1) => {
-      try {
-         setIsLoading(true);
-         setError(null);
+   const loadData = useCallback(
+      async (page = 1) => {
+         try {
+            setIsLoading(true);
+            setError(null);
 
-         // Load notes, folders, and labels in parallel with pagination
-         const [notesResponse, foldersResponse, labelsResponse] =
-            await Promise.all([
-               fetch(`/api/notes?page=${page}&limit=10`),
-               fetch(`/api/folders?page=${page}&limit=5`),
-               fetch(`/api/labels?page=${page}&limit=5`),
+            // Load notes, folders, and labels in parallel
+            const [notesResult, folders, labels] = await Promise.all([
+               NotesService.getNotes(page, 10),
+               NotesService.getFolders(),
+               NotesService.getLabels(),
             ]);
 
-         if (!notesResponse.ok || !foldersResponse.ok || !labelsResponse.ok) {
-            throw new Error("Failed to load data");
+            setState({
+               notes: notesResult.data,
+               folders,
+               labels,
+            });
+
+            // Calculate pagination info
+            const totalPages = Math.ceil(notesResult.count / 10);
+            setPagination({
+               notes: {
+                  page,
+                  limit: 10,
+                  totalCount: notesResult.count,
+                  totalPages,
+                  hasNextPage: page < totalPages,
+                  hasPrevPage: page > 1,
+               },
+               folders: {
+                  page: 1,
+                  limit: 5,
+                  totalCount: folders.length,
+                  totalPages: 1,
+                  hasNextPage: false,
+                  hasPrevPage: false,
+               },
+               labels: {
+                  page: 1,
+                  limit: 5,
+                  totalCount: labels.length,
+                  totalPages: 1,
+                  hasNextPage: false,
+                  hasPrevPage: false,
+               },
+            });
+
+            // Refresh note counts after loading data
+            await refreshNoteCountsWithFolders(folders, labels);
+         } catch (err) {
+            setError(
+               err instanceof Error ? err.message : "Failed to load data"
+            );
+         } finally {
+            setIsLoading(false);
          }
-
-         const [notesData, foldersData, labelsData]: [
-            PaginatedResponse<Note>,
-            PaginatedResponse<Folder>,
-            PaginatedResponse<Label>
-         ] = await Promise.all([
-            notesResponse.json(),
-            foldersResponse.json(),
-            labelsResponse.json(),
-         ]);
-
-         setState({
-            notes: notesData.data,
-            folders: foldersData.data,
-            labels: labelsData.data,
-         });
-
-         setPagination({
-            notes: notesData.pagination,
-            folders: foldersData.pagination,
-            labels: labelsData.pagination,
-         });
-
-         // Refresh note counts after loading data with the new folders
-         await refreshNoteCountsWithFolders(foldersData.data);
-      } catch (err) {
-         setError(err instanceof Error ? err.message : "Failed to load data");
-      } finally {
-         setIsLoading(false);
-      }
-   }, []);
+      },
+      [] // Empty dependency array since we're not using any external values
+   );
 
    // Load data after authentication is available
    useEffect(() => {
@@ -410,7 +367,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
             data.subscription.unsubscribe();
          } catch {}
       };
-   }, [loadData]);
+   }, []); // Empty dependency array to prevent infinite loops
 
    // Pagination functions
    const loadNextPage = useCallback(
@@ -436,29 +393,39 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
    const loadDataByType = useCallback(
       async (type: "notes" | "folders" | "labels", page: number) => {
          try {
-            const limit = type === "notes" ? 10 : 5;
-            const response = await fetch(
-               `/api/${type}?page=${page}&limit=${limit}`
-            );
-            if (!response.ok) {
-               throw new Error(`Failed to load ${type}`);
-            }
+            if (type === "notes") {
+               const notesResult = await NotesService.getNotes(page, 10);
+               const totalPages = Math.ceil(notesResult.count / 10);
 
-            const data: PaginatedResponse<any> = await response.json();
+               setState((prev) => ({
+                  ...prev,
+                  notes: notesResult.data,
+               }));
 
-            setState((prev) => ({
-               ...prev,
-               [type]: data.data,
-            }));
-
-            setPagination((prev) => ({
-               ...prev,
-               [type]: data.pagination,
-            }));
-
-            // If folders were loaded, refresh note counts
-            if (type === "folders") {
-               await refreshNoteCountsWithFolders(data.data);
+               setPagination((prev) => ({
+                  ...prev,
+                  notes: {
+                     page,
+                     limit: 10,
+                     totalCount: notesResult.count,
+                     totalPages,
+                     hasNextPage: page < totalPages,
+                     hasPrevPage: page > 1,
+                  },
+               }));
+            } else if (type === "folders") {
+               const folders = await NotesService.getFolders();
+               setState((prev) => ({
+                  ...prev,
+                  folders,
+               }));
+               await refreshNoteCountsWithFolders(folders, state.labels);
+            } else if (type === "labels") {
+               const labels = await NotesService.getLabels();
+               setState((prev) => ({
+                  ...prev,
+                  labels,
+               }));
             }
          } catch (err) {
             setError(
@@ -466,24 +433,19 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
             );
          }
       },
-      [refreshNoteCountsWithFolders]
+      [] // Empty dependency array since we're not using any external values
    );
 
    // Note operations
    const createNote = useCallback(
       async (title: string, content = "", folderId?: string) => {
          try {
-            const response = await fetch("/api/notes", {
-               method: "POST",
-               headers: { "Content-Type": "application/json" },
-               body: JSON.stringify({ title, content, folderId }),
-            });
+            const newNote = await NotesService.createNote(
+               title,
+               content,
+               folderId
+            );
 
-            if (!response.ok) {
-               throw new Error("Failed to create note");
-            }
-
-            const newNote = await response.json();
             setState((prev) => ({
                ...prev,
                notes: [newNote, ...prev.notes],
@@ -501,23 +463,13 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
             throw err;
          }
       },
-      [refreshNoteCounts]
+      [] // Empty dependency array to prevent recreation
    );
 
    const updateNote = useCallback(
       async (id: string, updates: Partial<Note>) => {
          try {
-            const response = await fetch(`/api/notes/${id}`, {
-               method: "PUT",
-               headers: { "Content-Type": "application/json" },
-               body: JSON.stringify(updates),
-            });
-
-            if (!response.ok) {
-               throw new Error("Failed to update note");
-            }
-
-            const updatedNote = await response.json();
+            const updatedNote = await NotesService.updateNote(id, updates);
 
             // Update state and return a promise that resolves when state is updated
             return new Promise<Note>((resolve) => {
@@ -554,13 +506,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
    const deleteNote = useCallback(
       async (id: string) => {
          try {
-            const response = await fetch(`/api/notes/${id}`, {
-               method: "DELETE",
-            });
-
-            if (!response.ok) {
-               throw new Error("Failed to delete note");
-            }
+            await NotesService.deleteNote(id);
 
             setState((prev) => ({
                ...prev,
@@ -585,17 +531,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
    const createFolder = useCallback(
       async (name: string, parentId?: string) => {
          try {
-            const response = await fetch("/api/folders", {
-               method: "POST",
-               headers: { "Content-Type": "application/json" },
-               body: JSON.stringify({ name, parentId }),
-            });
-
-            if (!response.ok) {
-               throw new Error("Failed to create folder");
-            }
-
-            const newFolder = await response.json();
+            const newFolder = await NotesService.createFolder(name, parentId);
             setState((prev) => ({
                ...prev,
                folders: [newFolder, ...prev.folders],
@@ -618,17 +554,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
    const updateFolder = useCallback(
       async (id: string, updates: Partial<Folder>) => {
          try {
-            const response = await fetch(`/api/folders/${id}`, {
-               method: "PUT",
-               headers: { "Content-Type": "application/json" },
-               body: JSON.stringify(updates),
-            });
-
-            if (!response.ok) {
-               throw new Error("Failed to update folder");
-            }
-
-            const updatedFolder = await response.json();
+            const updatedFolder = await NotesService.updateFolder(id, updates);
             setState((prev) => ({
                ...prev,
                folders: prev.folders.map((folder) =>
@@ -650,13 +576,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
    const deleteFolder = useCallback(
       async (id: string) => {
          try {
-            const response = await fetch(`/api/folders/${id}`, {
-               method: "DELETE",
-            });
-
-            if (!response.ok) {
-               throw new Error("Failed to delete folder");
-            }
+            await NotesService.deleteFolder(id);
 
             setState((prev) => ({
                ...prev,
@@ -685,17 +605,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
    // Label operations
    const createLabel = useCallback(async (name: string, color: string) => {
       try {
-         const response = await fetch("/api/labels", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, color }),
-         });
-
-         if (!response.ok) {
-            throw new Error("Failed to create label");
-         }
-
-         const newLabel = await response.json();
+         const newLabel = await NotesService.createLabel(name, color);
          setState((prev) => ({
             ...prev,
             labels: [newLabel, ...prev.labels],
@@ -713,17 +623,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
    const updateLabel = useCallback(
       async (id: string, updates: Partial<Label>) => {
          try {
-            const response = await fetch(`/api/labels/${id}`, {
-               method: "PUT",
-               headers: { "Content-Type": "application/json" },
-               body: JSON.stringify(updates),
-            });
-
-            if (!response.ok) {
-               throw new Error("Failed to update label");
-            }
-
-            const updatedLabel = await response.json();
+            const updatedLabel = await NotesService.updateLabel(id, updates);
             setState((prev) => ({
                ...prev,
                labels: prev.labels.map((label) =>
@@ -747,22 +647,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
          try {
             console.log(`Attempting to delete label with id: ${id}`);
 
-            const response = await fetch(`/api/labels/${id}`, {
-               method: "DELETE",
-            });
-
-            if (!response.ok) {
-               const errorText = await response.text();
-               console.error(
-                  `Label deletion failed: ${response.status} - ${errorText}`
-               );
-               throw new Error(
-                  `Failed to delete label: ${response.status} - ${errorText}`
-               );
-            }
-
-            const result = await response.json();
-            console.log("Label deletion successful:", result);
+            await NotesService.deleteLabel(id);
 
             const labelToDelete = state.labels.find((label) => label.id === id);
             if (!labelToDelete) {
@@ -802,33 +687,27 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => ({ ...prev, selectedNoteId: id }));
    }, []);
 
-   const selectFolder = useCallback(
-      async (id?: string) => {
-         setState((prev) => ({
-            ...prev,
-            selectedFolderId: id,
-            selectedLabelId: undefined,
-         }));
+   const selectFolder = useCallback(async (id?: string) => {
+      setState((prev) => ({
+         ...prev,
+         selectedFolderId: id,
+         selectedLabelId: undefined,
+      }));
 
-         // Refresh note counts when folder selection changes
-         await refreshNoteCounts();
-      },
-      [refreshNoteCounts]
-   );
+      // Note: Removed refreshNoteCounts call as it's not needed when just selecting a folder
+      // Counts should only be refreshed when notes are actually created, updated, or deleted
+   }, []);
 
-   const selectLabel = useCallback(
-      async (id?: string) => {
-         setState((prev) => ({
-            ...prev,
-            selectedLabelId: id,
-            selectedFolderId: undefined,
-         }));
+   const selectLabel = useCallback(async (id?: string) => {
+      setState((prev) => ({
+         ...prev,
+         selectedLabelId: id,
+         selectedFolderId: undefined,
+      }));
 
-         // Refresh note counts when label selection changes
-         await refreshNoteCounts();
-      },
-      [refreshNoteCounts]
-   );
+      // Note: Removed refreshNoteCounts call as it's not needed when just selecting a label
+      // Counts should only be refreshed when notes are actually created, updated, or deleted
+   }, []);
 
    // Computed values
    const selectedNote = useMemo(
