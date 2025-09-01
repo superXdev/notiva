@@ -9,6 +9,7 @@ import React, {
    useCallback,
 } from "react";
 import type { Note, Folder, Label, AppState } from "@/lib/types";
+import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 
 interface PaginationInfo {
    page: number;
@@ -31,6 +32,7 @@ interface NotesContextType {
    labels: Label[];
    selectedNote: Note | undefined;
    selectedFolder: Folder | undefined;
+   selectedLabel: Label | undefined;
    filteredNotes: Note[];
    isLoading: boolean;
    error: string | null;
@@ -42,6 +44,7 @@ interface NotesContextType {
    noteCounts: {
       all: number;
       byFolder: Record<string, number>;
+      byLabel: Record<string, number>;
    };
 
    // Actions
@@ -60,6 +63,7 @@ interface NotesContextType {
    deleteLabel: (id: string) => Promise<void>;
    selectNote: (id: string) => void;
    selectFolder: (id?: string) => void;
+   selectLabel: (id?: string) => void;
    loadData: (page?: number) => Promise<void>;
    loadNextPage: (type: "notes" | "folders" | "labels") => Promise<void>;
    loadPrevPage: (type: "notes" | "folders" | "labels") => Promise<void>;
@@ -81,15 +85,18 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       labels: [],
       selectedNoteId: undefined,
       selectedFolderId: undefined,
+      selectedLabelId: undefined,
    });
    const [isLoading, setIsLoading] = useState(true);
    const [error, setError] = useState<string | null>(null);
    const [noteCounts, setNoteCounts] = useState<{
       all: number;
       byFolder: Record<string, number>;
+      byLabel: Record<string, number>;
    }>({
       all: 0,
       byFolder: {},
+      byLabel: {},
    });
    const [pagination, setPagination] = useState<{
       notes: PaginationInfo;
@@ -129,15 +136,32 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
             ? `/api/notes/count?folderId=${folderId}`
             : "/api/notes/count";
 
-         const response = await fetch(url);
-         if (!response.ok) {
-            throw new Error("Failed to get note count");
-         }
+         const controller = new AbortController();
+         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-         const { count } = await response.json();
-         return count || 0;
+         try {
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (!response.ok) {
+               const errorText = await response.text();
+               console.error(
+                  `Failed to get note count: ${response.status} - ${errorText}`
+               );
+               throw new Error(`Failed to get note count: ${response.status}`);
+            }
+
+            const { count } = await response.json();
+            return count || 0;
+         } catch (err) {
+            if (err instanceof Error && err.name === "AbortError") {
+               console.error("Note count request timed out");
+               return 0;
+            }
+            throw err;
+         }
       } catch (err) {
          console.error("Failed to get note count:", err);
+         // Return 0 instead of throwing to prevent the error from bubbling up
          return 0;
       }
    }, []);
@@ -154,27 +178,55 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
             // Get counts for each folder
             const folderCounts: Record<string, number> = {};
             for (const folder of folders) {
-               const count = await getNoteCount(folder.id);
-               folderCounts[folder.id] = count;
+               try {
+                  const count = await getNoteCount(folder.id);
+                  folderCounts[folder.id] = count;
+                  console.log(
+                     `Folder "${folder.name}" (${folder.id}): ${count} notes`
+                  );
+               } catch (err) {
+                  console.error(
+                     `Failed to get count for folder ${folder.id}:`,
+                     err
+                  );
+                  folderCounts[folder.id] = 0;
+               }
+            }
+
+            // Get counts for each label
+            const labelCounts: Record<string, number> = {};
+            for (const label of state.labels) {
+               const count = state.notes.filter((note) =>
+                  note.labels.includes(label.name)
+               ).length;
+               labelCounts[label.id] = count;
                console.log(
-                  `Folder "${folder.name}" (${folder.id}): ${count} notes`
+                  `Label "${label.name}" (${label.id}): ${count} notes`
                );
             }
 
             setNoteCounts({
                all: allCount,
                byFolder: folderCounts,
+               byLabel: labelCounts,
             });
 
             console.log("Note counts updated:", {
                all: allCount,
                byFolder: folderCounts,
+               byLabel: labelCounts,
             });
          } catch (err) {
             console.error("Failed to refresh note counts:", err);
+            // Set default values on error
+            setNoteCounts({
+               all: 0,
+               byFolder: {},
+               byLabel: {},
+            });
          }
       },
-      [getNoteCount]
+      [getNoteCount, state.labels, state.notes]
    );
 
    const refreshNoteCounts = useCallback(async () => {
@@ -188,26 +240,52 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
          // Get counts for each folder
          const folderCounts: Record<string, number> = {};
          for (const folder of state.folders) {
-            const count = await getNoteCount(folder.id);
-            folderCounts[folder.id] = count;
-            console.log(
-               `Folder "${folder.name}" (${folder.id}): ${count} notes`
-            );
+            try {
+               const count = await getNoteCount(folder.id);
+               folderCounts[folder.id] = count;
+               console.log(
+                  `Folder "${folder.name}" (${folder.id}): ${count} notes`
+               );
+            } catch (err) {
+               console.error(
+                  `Failed to get count for folder ${folder.id}:`,
+                  err
+               );
+               folderCounts[folder.id] = 0;
+            }
+         }
+
+         // Get counts for each label
+         const labelCounts: Record<string, number> = {};
+         for (const label of state.labels) {
+            const count = state.notes.filter((note) =>
+               note.labels.includes(label.name)
+            ).length;
+            labelCounts[label.id] = count;
+            console.log(`Label "${label.name}" (${label.id}): ${count} notes`);
          }
 
          setNoteCounts({
             all: allCount,
             byFolder: folderCounts,
+            byLabel: labelCounts,
          });
 
          console.log("Note counts updated:", {
             all: allCount,
             byFolder: folderCounts,
+            byLabel: labelCounts,
          });
       } catch (err) {
          console.error("Failed to refresh note counts:", err);
+         // Set default values on error
+         setNoteCounts({
+            all: 0,
+            byFolder: {},
+            byLabel: {},
+         });
       }
-   }, [state.folders, getNoteCount]);
+   }, [state.folders, state.labels, state.notes, getNoteCount]);
 
    const refreshFolderCount = useCallback(
       async (folderId: string) => {
@@ -236,11 +314,6 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       },
       [getNoteCount]
    );
-
-   // Load data on mount
-   useEffect(() => {
-      loadData();
-   }, []);
 
    // Refresh note counts when folders are loaded
    useEffect(() => {
@@ -301,6 +374,43 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
          setIsLoading(false);
       }
    }, []);
+
+   // Load data after authentication is available
+   useEffect(() => {
+      const supabase = createSupabaseClient();
+
+      let hasLoaded = false;
+
+      const init = async () => {
+         try {
+            const {
+               data: { session },
+            } = await supabase.auth.getSession();
+            if (session && !hasLoaded) {
+               hasLoaded = true;
+               await loadData();
+            }
+         } catch {}
+      };
+
+      init();
+
+      const { data } = supabase.auth.onAuthStateChange((event) => {
+         if (
+            (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") &&
+            !hasLoaded
+         ) {
+            hasLoaded = true;
+            loadData();
+         }
+      });
+
+      return () => {
+         try {
+            data.subscription.unsubscribe();
+         } catch {}
+      };
+   }, [loadData]);
 
    // Pagination functions
    const loadNextPage = useCallback(
@@ -694,9 +804,27 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
 
    const selectFolder = useCallback(
       async (id?: string) => {
-         setState((prev) => ({ ...prev, selectedFolderId: id }));
+         setState((prev) => ({
+            ...prev,
+            selectedFolderId: id,
+            selectedLabelId: undefined,
+         }));
 
          // Refresh note counts when folder selection changes
+         await refreshNoteCounts();
+      },
+      [refreshNoteCounts]
+   );
+
+   const selectLabel = useCallback(
+      async (id?: string) => {
+         setState((prev) => ({
+            ...prev,
+            selectedLabelId: id,
+            selectedFolderId: undefined,
+         }));
+
+         // Refresh note counts when label selection changes
          await refreshNoteCounts();
       },
       [refreshNoteCounts]
@@ -714,16 +842,35 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       [state.folders, state.selectedFolderId]
    );
 
-   const filteredNotes = useMemo(
-      () =>
-         state.notes.filter((note) => {
-            if (state.selectedFolderId) {
-               return note.folderId === state.selectedFolderId;
-            }
-            return true;
-         }),
-      [state.notes, state.selectedFolderId]
+   const selectedLabel = useMemo(
+      () => state.labels.find((label) => label.id === state.selectedLabelId),
+      [state.labels, state.selectedLabelId]
    );
+
+   const filteredNotes = useMemo(() => {
+      let notes = state.notes;
+      if (state.selectedFolderId) {
+         notes = notes.filter(
+            (note) => note.folderId === state.selectedFolderId
+         );
+      }
+      if (state.selectedLabelId) {
+         const selectedLabel = state.labels.find(
+            (label) => label.id === state.selectedLabelId
+         );
+         if (selectedLabel) {
+            notes = notes.filter((note) =>
+               note.labels.includes(selectedLabel.name)
+            );
+         }
+      }
+      return notes;
+   }, [
+      state.notes,
+      state.selectedFolderId,
+      state.selectedLabelId,
+      state.labels,
+   ]);
 
    const value: NotesContextType = {
       // State
@@ -732,6 +879,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       labels: state.labels,
       selectedNote,
       selectedFolder,
+      selectedLabel,
       filteredNotes,
       isLoading,
       error,
@@ -750,6 +898,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       deleteLabel,
       selectNote,
       selectFolder,
+      selectLabel,
       loadData,
       loadNextPage,
       loadPrevPage,

@@ -22,6 +22,24 @@ export async function GET(request: NextRequest) {
          `API: Counting notes for user ${user.id}, folderId: ${folderId}`
       );
 
+      // Validate folderId format if provided
+      if (folderId && folderId.trim() !== "") {
+         // Basic UUID validation
+         const uuidRegex =
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+         if (!uuidRegex.test(folderId)) {
+            console.error(`API: Invalid folderId format: ${folderId}`);
+            return NextResponse.json(
+               {
+                  error: "Invalid folder ID format",
+                  details:
+                     "The provided folder ID is not in the correct format",
+               },
+               { status: 400 }
+            );
+         }
+      }
+
       // Build query
       let query = supabase
          .from("notes")
@@ -29,7 +47,7 @@ export async function GET(request: NextRequest) {
          .eq("user_id", user.id);
 
       // Apply folder filter if specified
-      if (folderId) {
+      if (folderId && folderId.trim() !== "") {
          query = query.eq("folder_id", folderId);
          console.log(`API: Filtering by folder_id = ${folderId}`);
       } else {
@@ -42,7 +60,13 @@ export async function GET(request: NextRequest) {
 
       if (error) {
          console.error(`API: Error counting notes:`, error);
-         return NextResponse.json({ error: error.message }, { status: 500 });
+         return NextResponse.json(
+            {
+               error: error.message,
+               details: error.details || "Unknown database error",
+            },
+            { status: 500 }
+         );
       }
 
       console.log(`API: Count result: ${count || 0} notes`);

@@ -49,6 +49,7 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
       labels,
       selectedNote,
       selectedFolder,
+      selectedLabel,
       filteredNotes,
       pagination,
       noteCounts,
@@ -60,6 +61,7 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
       deleteLabel,
       selectNote,
       selectFolder,
+      selectLabel,
       loadNextPage,
       loadPrevPage,
       refreshNoteCounts,
@@ -266,7 +268,9 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
             <div className="p-3 md:p-4">
                <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xs md:text-sm font-medium text-muted-foreground">
-                     Labels
+                     Labels{" "}
+                     {selectedLabel &&
+                        `(${noteCounts.byLabel[selectedLabel.id] || 0} notes)`}
                   </h3>
                   <Dialog
                      open={isCreateLabelOpen}
@@ -324,12 +328,29 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                      : labels.map((label) => (
                           <div key={label.id} className="group relative">
                              <Badge
-                                variant="secondary"
+                                variant={
+                                   selectedLabel?.id === label.id
+                                      ? "default"
+                                      : "secondary"
+                                }
                                 style={{
-                                   backgroundColor: label.color + "20",
-                                   color: label.color,
+                                   backgroundColor:
+                                      selectedLabel?.id === label.id
+                                         ? label.color
+                                         : label.color + "20",
+                                   color:
+                                      selectedLabel?.id === label.id
+                                         ? "white"
+                                         : label.color,
                                 }}
-                                className="cursor-pointer text-xs"
+                                className="cursor-pointer text-xs hover:opacity-80 transition-all"
+                                onClick={() =>
+                                   selectLabel(
+                                      selectedLabel?.id === label.id
+                                         ? undefined
+                                         : label.id
+                                   )
+                                }
                              >
                                 <Tag className="h-3 w-3 mr-1" />
                                 <span className="truncate max-w-[80px]">
@@ -340,7 +361,10 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                                 variant="ghost"
                                 size="sm"
                                 className="absolute -top-1 -right-1 h-4 w-4 p-0 opacity-0 group-hover:opacity-100 bg-destructive text-destructive-foreground rounded-full text-xs"
-                                onClick={() => deleteLabel(label.id)}
+                                onClick={(e) => {
+                                   e.stopPropagation();
+                                   deleteLabel(label.id);
+                                }}
                              >
                                 ×
                              </Button>
@@ -354,13 +378,35 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
             {/* Notes List */}
             <div className="p-3 md:p-4">
                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs md:text-sm font-medium text-muted-foreground">
-                     {selectedFolder ? selectedFolder.name : "All Notes"} (
-                     {selectedFolder
-                        ? noteCounts.byFolder[selectedFolder.id] || 0
-                        : noteCounts.all}
-                     )
-                  </h3>
+                  <div className="flex items-center gap-2">
+                     <h3 className="text-xs md:text-sm font-medium text-muted-foreground">
+                        {selectedLabel
+                           ? `Label: ${selectedLabel.name}`
+                           : selectedFolder
+                           ? selectedFolder.name
+                           : "All Notes"}{" "}
+                        (
+                        {selectedLabel
+                           ? filteredNotes.length
+                           : selectedFolder
+                           ? noteCounts.byFolder[selectedFolder.id] || 0
+                           : noteCounts.all}
+                        )
+                     </h3>
+                     {(selectedLabel || selectedFolder) && (
+                        <Button
+                           variant="ghost"
+                           size="sm"
+                           onClick={() => {
+                              selectLabel();
+                              selectFolder();
+                           }}
+                           className="h-6 px-2 text-xs"
+                        >
+                           Clear
+                        </Button>
+                     )}
+                  </div>
 
                   {/* Pagination Controls */}
                   {pagination.notes.totalPages > 1 && (

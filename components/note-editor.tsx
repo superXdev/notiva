@@ -487,9 +487,9 @@ export function NoteEditor() {
                         prose-em:text-foreground prose-em:italic
                         prose-a:text-primary prose-a:underline hover:prose-a:text-primary/80
                         prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r
-                        prose-code:bg-muted prose-code:text-foreground prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+                        prose-code:text-foreground prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
                         prose-code:before:content-none prose-code:after:content-none
-                        prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-lg prose-pre:p-0
+                        prose-pre:border prose-pre:border-border prose-pre:rounded-lg prose-pre:p-0
                         prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground
                         prose-hr:border-border prose-hr:my-6
                         prose-img:rounded-lg prose-img:border prose-img:border-border"
@@ -510,14 +510,28 @@ export function NoteEditor() {
                               return !inline && match ? (
                                  <div className="not-prose my-4">
                                     <SyntaxHighlighter
-                                       style={oneDark}
+                                       style={{
+                                          ...oneDark,
+                                          'pre[class*="language-"]': {
+                                             ...oneDark[
+                                                'pre[class*="language-"]'
+                                             ],
+                                             background: "transparent",
+                                          },
+                                          'code[class*="language-"]': {
+                                             ...oneDark[
+                                                'code[class*="language-"]'
+                                             ],
+                                             background: "transparent",
+                                          },
+                                       }}
                                        language={match[1]}
                                        PreTag="div"
                                        className="rounded-lg border border-border overflow-hidden"
                                        customStyle={{
                                           margin: 0,
                                           padding: "1rem",
-                                          background: "hsl(var(--muted))",
+                                          background: "transparent",
                                           fontSize: "0.875rem",
                                           lineHeight: "1.5",
                                        }}
@@ -528,7 +542,7 @@ export function NoteEditor() {
                                  </div>
                               ) : (
                                  <code
-                                    className="bg-muted text-foreground px-1.5 py-0.5 rounded text-sm font-mono"
+                                    className="text-foreground px-1.5 py-0.5 rounded text-sm font-mono"
                                     {...props}
                                  >
                                     {children}
