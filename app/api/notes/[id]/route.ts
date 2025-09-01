@@ -43,6 +43,8 @@ export async function GET(
          content: note.content,
          folderId: note.folder_id,
          labels: note.labels,
+         published: note.published,
+         publishedAt: note.published_at,
          createdAt: note.created_at,
          updatedAt: note.updated_at,
          userId: note.user_id,
@@ -75,7 +77,7 @@ export async function PUT(
       }
 
       const body = await request.json();
-      const { title, content, folderId, labels } = body;
+      const { title, content, folderId, labels, published } = body;
 
       // Build update object with only provided fields
       const updateData: any = {
@@ -86,6 +88,14 @@ export async function PUT(
       if (content !== undefined) updateData.content = content;
       if (folderId !== undefined) updateData.folder_id = folderId || null;
       if (labels !== undefined) updateData.labels = labels;
+      if (published !== undefined) {
+         updateData.published = published;
+         if (published) {
+            updateData.published_at = new Date().toISOString();
+         } else {
+            updateData.published_at = null;
+         }
+      }
 
       // Update note
       const { data: note, error } = await supabase
@@ -113,6 +123,8 @@ export async function PUT(
          content: note.content,
          folderId: note.folder_id,
          labels: note.labels,
+         published: note.published,
+         publishedAt: note.published_at,
          createdAt: note.created_at,
          updatedAt: note.updated_at,
          userId: note.user_id,

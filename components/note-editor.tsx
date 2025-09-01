@@ -21,8 +21,11 @@ import {
    Edit,
    Download,
    ChevronRight,
+   Globe,
+   Link,
 } from "lucide-react";
 import { useNotes } from "@/contexts/notes-context";
+import { useToast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -44,11 +47,13 @@ export function NoteEditor() {
       refreshFolderCount,
       refreshNoteCounts,
    } = useNotes();
+   const { toast } = useToast();
 
    const [title, setTitle] = useState("");
    const [content, setContent] = useState("");
    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
    const [isExportingPDF, setIsExportingPDF] = useState(false);
+   const [isPublishing, setIsPublishing] = useState(false);
    const [currentTab, setCurrentTab] = useState("edit");
 
    useEffect(() => {
@@ -131,6 +136,40 @@ export function NoteEditor() {
       } finally {
          setIsExportingPDF(false);
       }
+   };
+
+   const handlePublish = async () => {
+      if (!selectedNote) return;
+
+      setIsPublishing(true);
+      try {
+         await updateNote(selectedNote.id, {
+            published: !selectedNote.published,
+         });
+
+         toast({
+            title: selectedNote.published
+               ? "Note unpublished"
+               : "Note published",
+            description: selectedNote.published
+               ? "Your note is no longer publicly accessible."
+               : "Your note is now publicly accessible.",
+         });
+      } catch (error) {
+         console.error("Failed to publish note:", error);
+         toast({
+            title: "Failed to publish note",
+            description: "Please try again.",
+            variant: "destructive",
+         });
+      } finally {
+         setIsPublishing(false);
+      }
+   };
+
+   const getPublishedUrl = () => {
+      if (!selectedNote?.published) return null;
+      return `${window.location.origin}/published/${selectedNote.id}`;
    };
 
    const handleAddLabel = async (labelName: string) => {
@@ -299,12 +338,20 @@ export function NoteEditor() {
                      )}
 
                      {/* Note Title */}
-                     <Input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="text-lg font-semibold border-none bg-transparent p-0 focus-visible:ring-0"
-                        placeholder="Untitled note"
-                     />
+                     <div className="flex items-center space-x-2">
+                        <Input
+                           value={title}
+                           onChange={(e) => setTitle(e.target.value)}
+                           className="text-lg font-semibold border-none bg-transparent p-0 focus-visible:ring-0"
+                           placeholder="Untitled note"
+                        />
+                        {selectedNote.published && (
+                           <Badge variant="outline" className="text-xs">
+                              <Globe className="h-3 w-3 mr-1" />
+                              Published
+                           </Badge>
+                        )}
+                     </div>
                   </div>
 
                   <div className="flex items-center space-x-2">
@@ -327,6 +374,53 @@ export function NoteEditor() {
                            </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
+                           <DropdownMenuItem
+                              onClick={handlePublish}
+                              disabled={isPublishing}
+                           >
+                              {selectedNote.published ? (
+                                 <>
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    {isPublishing
+                                       ? "Unpublishing..."
+                                       : "Unpublish"}
+                                 </>
+                              ) : (
+                                 <>
+                                    <Globe className="h-4 w-4 mr-2" />
+                                    {isPublishing ? "Publishing..." : "Publish"}
+                                 </>
+                              )}
+                           </DropdownMenuItem>
+                           {selectedNote.published && (
+                              <DropdownMenuItem
+                                 onClick={async () => {
+                                    const url = getPublishedUrl();
+                                    if (url) {
+                                       try {
+                                          await navigator.clipboard.writeText(
+                                             url
+                                          );
+                                          toast({
+                                             title: "Link copied!",
+                                             description:
+                                                "The published note link has been copied to your clipboard.",
+                                          });
+                                       } catch (error) {
+                                          toast({
+                                             title: "Failed to copy link",
+                                             description:
+                                                "Please try again or copy the link manually.",
+                                             variant: "destructive",
+                                          });
+                                       }
+                                    }
+                                 }}
+                              >
+                                 <Link className="h-4 w-4 mr-2" />
+                                 Copy Link
+                              </DropdownMenuItem>
+                           )}
                            <DropdownMenuItem
                               onClick={handleExportPDF}
                               disabled={isExportingPDF}

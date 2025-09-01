@@ -27,6 +27,8 @@ CREATE TABLE IF NOT EXISTS notes (
   content TEXT DEFAULT '',
   folder_id UUID REFERENCES folders(id) ON DELETE SET NULL,
   labels TEXT[] DEFAULT '{}',
+  published BOOLEAN DEFAULT FALSE,
+  published_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE
@@ -79,9 +81,11 @@ ALTER TABLE labels ENABLE ROW LEVEL SECURITY;
 -- CREATE RLS POLICIES FOR NOTES
 -- =====================================================
 
--- Users can view their own notes
-CREATE POLICY "Users can view their own notes" ON notes
-  FOR SELECT USING (auth.uid() = user_id);
+-- Users can view their own notes OR any published notes
+CREATE POLICY "Users can view their own notes or published notes" ON notes
+  FOR SELECT USING (
+    auth.uid() = user_id OR published = true
+  );
 
 -- Users can insert their own notes
 CREATE POLICY "Users can insert their own notes" ON notes
@@ -305,6 +309,49 @@ INSERT INTO notes (title, content, folder_id, labels, user_id) VALUES
 */
 
 -- =====================================================
+-- PUBLIC ACCESS FUNCTIONALITY FOR PUBLISHED NOTES
+-- =====================================================
+
+-- Function to get published note by ID
+CREATE OR REPLACE FUNCTION get_public_note(note_uuid UUID)
+RETURNS TABLE (
+    id UUID,
+    title TEXT,
+    content TEXT,
+    folder_id UUID,
+    labels TEXT[],
+    published BOOLEAN,
+    published_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE,
+    user_id UUID
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        n.id,
+        n.title,
+        n.content,
+        n.folder_id,
+        n.labels,
+        n.published,
+        n.published_at,
+        n.created_at,
+        n.updated_at,
+        n.user_id
+    FROM notes n
+    WHERE n.id = note_uuid AND n.published = true;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant execute permission to anonymous and authenticated users
+GRANT EXECUTE ON FUNCTION get_public_note(UUID) TO anon;
+GRANT EXECUTE ON FUNCTION get_public_note(UUID) TO authenticated;
+
+-- Create index for better performance on published notes
+CREATE INDEX IF NOT EXISTS idx_notes_published ON notes(published) WHERE published = true;
+
+-- =====================================================
 -- VERIFICATION QUERIES
 -- =====================================================
 
@@ -350,12 +397,29 @@ WHERE schemaname = 'public'
   AND tablename IN ('notes', 'folders', 'labels')
 ORDER BY tablename, policyname;
 
+-- Check if public access function was created
+SELECT routine_name FROM information_schema.routines 
+WHERE routine_name = 'get_public_note';
+
+-- Check if published notes index was created
+SELECT indexname FROM pg_indexes 
+WHERE tablename = 'notes' 
+  AND indexname = 'idx_notes_published';
+
 -- =====================================================
 -- SETUP COMPLETE
 -- =====================================================
 
 -- The database is now ready for the Notiva application!
+-- Features included:
+-- 1. Basic note-taking functionality with folders and labels
+-- 2. Public access to published notes (publish feature)
+-- 3. Row Level Security (RLS) for data protection
+-- 4. Performance indexes for optimal query speed
+-- 5. Helper functions for common operations
+--
 -- Make sure to:
 -- 1. Configure your environment variables
 -- 2. Set up email templates in Supabase Auth
 -- 3. Test the API endpoints
+-- 4. Update your middleware to allow public access to /published/* routes

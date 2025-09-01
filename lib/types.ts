@@ -4,6 +4,8 @@ export interface Note {
    content: string;
    folderId?: string;
    labels: string[];
+   published: boolean;
+   publishedAt?: string;
    createdAt: string;
    updatedAt: string;
    userId: string;
@@ -45,6 +47,8 @@ export interface Database {
                content: string;
                folder_id: string | null;
                labels: string[];
+               published: boolean;
+               published_at: string | null;
                created_at: string;
                updated_at: string;
                user_id: string;
@@ -55,6 +59,8 @@ export interface Database {
                content?: string;
                folder_id?: string | null;
                labels?: string[];
+               published?: boolean;
+               published_at?: string | null;
                created_at?: string;
                updated_at?: string;
                user_id: string;
@@ -65,6 +71,8 @@ export interface Database {
                content?: string;
                folder_id?: string | null;
                labels?: string[];
+               published?: boolean;
+               published_at?: string | null;
                created_at?: string;
                updated_at?: string;
                user_id?: string;

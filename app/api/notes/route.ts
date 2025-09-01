@@ -48,6 +48,8 @@ export async function GET(request: NextRequest) {
          content: note.content,
          folderId: note.folder_id,
          labels: note.labels,
+         published: note.published,
+         publishedAt: note.published_at,
          createdAt: note.created_at,
          updatedAt: note.updated_at,
          userId: note.user_id,
@@ -108,6 +110,7 @@ export async function POST(request: NextRequest) {
             content,
             folder_id: folderId || null,
             labels: [],
+            published: false,
             user_id: user.id,
          })
          .select()
@@ -124,6 +127,8 @@ export async function POST(request: NextRequest) {
          content: note.content,
          folderId: note.folder_id,
          labels: note.labels,
+         published: note.published,
+         publishedAt: note.published_at,
          createdAt: note.created_at,
          updatedAt: note.updated_at,
          userId: note.user_id,
