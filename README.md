@@ -33,12 +33,18 @@ A modern note-taking application built with Next.js and Supabase.
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
    ```
 
-4. **Configure email templates**
+4. **Set up database tables**
+
+   -  In Supabase dashboard: Go to SQL Editor
+   -  Copy and paste the contents of `supabase-schema.sql`
+   -  Run the SQL to create tables, indexes, and RLS policies
+
+5. **Configure email templates**
 
    -  In Supabase dashboard: Authentication > Email Templates
    -  Set "Confirm signup" URL to: `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email`
 
-5. **Run the application**
+6. **Run the application**
    ```bash
    pnpm dev
    ```
