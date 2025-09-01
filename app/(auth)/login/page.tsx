@@ -13,10 +13,11 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { GoogleButton } from "@/components/ui/google-button";
-import { FileText, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { login } from "../actions";
 import { AuthMessage } from "@/components/auth-message";
+import { Logo } from "@/components/ui/logo";
 
 export default function LoginPage() {
    const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +28,7 @@ export default function LoginPage() {
             {/* Logo and Title */}
             <div className="text-center space-y-2">
                <div className="flex items-center justify-center gap-2 mb-4">
-                  <FileText className="h-8 w-8 text-primary" />
+                  <Logo width={32} height={32} />
                   <span className="text-2xl font-bold">Notiva</span>
                </div>
                <h1 className="text-2xl font-semibold tracking-tight">

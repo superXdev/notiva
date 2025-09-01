@@ -21,6 +21,8 @@ import { MobileSidebar } from "@/components/mobile-sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { signOut } from "@/app/(auth)/actions";
 import { User as SupabaseUser } from "@supabase/supabase-js";
+import Link from "next/link";
+import { Logo } from "@/components/ui/logo";
 
 interface NavigationHeaderProps {
    user: SupabaseUser;
@@ -42,9 +44,9 @@ export function NavigationHeader({ user }: NavigationHeaderProps) {
                   <MobileSidebar />
                </div>
                <div className="flex items-center gap-2">
-                  <FileText className="h-6 w-6 text-primary" />
+                  <Logo width={24} height={24} />
                   <span className="font-semibold text-lg hidden sm:block">
-                     Markdown Notes
+                     Notiva
                   </span>
                </div>
             </div>
@@ -88,9 +90,14 @@ export function NavigationHeader({ user }: NavigationHeaderProps) {
                         </div>
                      </DropdownMenuItem>
                      <DropdownMenuSeparator />
-                     <DropdownMenuItem>
-                        <Settings className="h-4 w-4 mr-2" />
-                        Settings
+                     <DropdownMenuItem asChild>
+                        <Link
+                           href="/settings"
+                           className="flex items-center w-full"
+                        >
+                           <Settings className="h-4 w-4 mr-2" />
+                           Settings
+                        </Link>
                      </DropdownMenuItem>
                      <DropdownMenuItem className="sm:hidden">
                         <HelpCircle className="h-4 w-4 mr-2" />

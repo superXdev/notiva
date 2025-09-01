@@ -103,10 +103,10 @@ export function AIEnhancementButton({
       <DropdownMenu>
          <DropdownMenuTrigger asChild>
             <Button
-               variant="outline"
+               variant="default"
                size="sm"
                disabled={disabled || isEnhancing}
-               className="gap-2"
+               className="gap-2 bg-blue-700 hover:bg-blue-700 text-white border-blue-700 hover:border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-700 dark:text-white dark:border-blue-700 dark:hover:border-blue-700"
             >
                {isEnhancing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

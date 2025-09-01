@@ -9,6 +9,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
+import { PublishedNavigation } from "@/components/published-navigation";
 
 interface PublishedNotePageProps {
    params: {
@@ -147,7 +148,7 @@ export default async function PublishedNotePage({
             "@type": "ImageObject",
             url: `${
                process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.app"
-            }/placeholder-logo.png`,
+            }/logo.png`,
          },
       },
       datePublished: note.published_at || note.updated_at,
@@ -172,92 +173,166 @@ export default async function PublishedNotePage({
                __html: JSON.stringify(structuredData),
             }}
          />
-         <div className="container mx-auto px-4 py-8 max-w-4xl">
-            {/* Header */}
-            <header className="mb-8">
-               <div className="flex items-center justify-between mb-4">
-                  <h1 className="text-3xl font-bold text-foreground">
-                     {note.title}
-                  </h1>
-                  <div className="text-sm text-muted-foreground">
-                     Published{" "}
-                     {formatDistanceToNow(
-                        new Date(note.published_at || note.updated_at),
-                        { addSuffix: true }
+         <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <div className="flex gap-8">
+               {/* Main Content */}
+               <div className="flex-1 max-w-4xl">
+                  {/* Header */}
+                  <header className="mb-8">
+                     <div className="flex items-center justify-between mb-4">
+                        <h1 className="text-3xl font-bold text-foreground">
+                           {note.title}
+                        </h1>
+                        <div className="text-sm text-muted-foreground">
+                           Published{" "}
+                           {formatDistanceToNow(
+                              new Date(note.published_at || note.updated_at),
+                              { addSuffix: true }
+                           )}
+                        </div>
+                     </div>
+
+                     {/* Labels */}
+                     {note.labels && note.labels.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                           {note.labels.map((label: string) => (
+                              <Badge key={label} variant="secondary">
+                                 {label}
+                              </Badge>
+                           ))}
+                        </div>
                      )}
-                  </div>
+
+                     <div className="w-full h-px bg-border" />
+                  </header>
+
+                  {/* Content */}
+                  <article className="prose prose-lg max-w-none dark:prose-invert [&_h1]:scroll-mt-20 [&_h2]:scroll-mt-20 [&_h3]:scroll-mt-20 [&_h4]:scroll-mt-20 [&_h5]:scroll-mt-20 [&_h6]:scroll-mt-20">
+                     <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                        components={{
+                           h1: ({ children, ...props }) => {
+                              const id = `heading-${String(children)
+                                 .toLowerCase()
+                                 .replace(/[^a-z0-9]+/g, "-")}`;
+                              return (
+                                 <h1 id={id} {...props}>
+                                    {children}
+                                 </h1>
+                              );
+                           },
+                           h2: ({ children, ...props }) => {
+                              const id = `heading-${String(children)
+                                 .toLowerCase()
+                                 .replace(/[^a-z0-9]+/g, "-")}`;
+                              return (
+                                 <h2 id={id} {...props}>
+                                    {children}
+                                 </h2>
+                              );
+                           },
+                           h3: ({ children, ...props }) => {
+                              const id = `heading-${String(children)
+                                 .toLowerCase()
+                                 .replace(/[^a-z0-9]+/g, "-")}`;
+                              return (
+                                 <h3 id={id} {...props}>
+                                    {children}
+                                 </h3>
+                              );
+                           },
+                           h4: ({ children, ...props }) => {
+                              const id = `heading-${String(children)
+                                 .toLowerCase()
+                                 .replace(/[^a-z0-9]+/g, "-")}`;
+                              return (
+                                 <h4 id={id} {...props}>
+                                    {children}
+                                 </h4>
+                              );
+                           },
+                           h5: ({ children, ...props }) => {
+                              const id = `heading-${String(children)
+                                 .toLowerCase()
+                                 .replace(/[^a-z0-9]+/g, "-")}`;
+                              return (
+                                 <h5 id={id} {...props}>
+                                    {children}
+                                 </h5>
+                              );
+                           },
+                           h6: ({ children, ...props }) => {
+                              const id = `heading-${String(children)
+                                 .toLowerCase()
+                                 .replace(/[^a-z0-9]+/g, "-")}`;
+                              return (
+                                 <h6 id={id} {...props}>
+                                    {children}
+                                 </h6>
+                              );
+                           },
+                           code({
+                              node,
+                              inline,
+                              className,
+                              children,
+                              ...props
+                           }: any) {
+                              const match = /language-(\w+)/.exec(
+                                 className || ""
+                              );
+                              return !inline && match ? (
+                                 <div className="not-prose my-4">
+                                    <SyntaxHighlighter
+                                       style={{
+                                          ...oneDark,
+                                          'pre[class*="language-"]': {
+                                             ...oneDark[
+                                                'pre[class*="language-"]'
+                                             ],
+                                             background: "transparent",
+                                          },
+                                          'code[class*="language-"]': {
+                                             ...oneDark[
+                                                'code[class*="language-"]'
+                                             ],
+                                             background: "transparent",
+                                          },
+                                       }}
+                                       language={match[1]}
+                                       PreTag="div"
+                                       className="rounded-lg border border-border overflow-hidden"
+                                       customStyle={{
+                                          margin: 0,
+                                          padding: "1rem",
+                                          background: "transparent",
+                                          fontSize: "0.875rem",
+                                          lineHeight: "1.5",
+                                       }}
+                                       {...props}
+                                    >
+                                       {String(children).replace(/\n$/, "")}
+                                    </SyntaxHighlighter>
+                                 </div>
+                              ) : (
+                                 <code className={className} {...props}>
+                                    {children}
+                                 </code>
+                              );
+                           },
+                        }}
+                     >
+                        {note.content}
+                     </ReactMarkdown>
+                  </article>
                </div>
 
-               {/* Labels */}
-               {note.labels && note.labels.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                     {note.labels.map((label: string) => (
-                        <Badge key={label} variant="secondary">
-                           {label}
-                        </Badge>
-                     ))}
-                  </div>
-               )}
-
-               <div className="w-full h-px bg-border" />
-            </header>
-
-            {/* Content */}
-            <article className="prose prose-lg max-w-none dark:prose-invert">
-               <ReactMarkdown
-                  remarkPlugins={[remarkGfm, remarkBreaks]}
-                  components={{
-                     code({
-                        node,
-                        inline,
-                        className,
-                        children,
-                        ...props
-                     }: any) {
-                        const match = /language-(\w+)/.exec(className || "");
-                        return !inline && match ? (
-                           <div className="not-prose my-4">
-                              <SyntaxHighlighter
-                                 style={{
-                                    ...oneDark,
-                                    'pre[class*="language-"]': {
-                                       ...oneDark['pre[class*="language-"]'],
-                                       background: "transparent",
-                                    },
-                                    'code[class*="language-"]': {
-                                       ...oneDark['code[class*="language-"]'],
-                                       background: "transparent",
-                                    },
-                                 }}
-                                 language={match[1]}
-                                 PreTag="div"
-                                 className="rounded-lg border border-border overflow-hidden"
-                                 customStyle={{
-                                    margin: 0,
-                                    padding: "1rem",
-                                    background: "transparent",
-                                    fontSize: "0.875rem",
-                                    lineHeight: "1.5",
-                                 }}
-                                 {...props}
-                              >
-                                 {String(children).replace(/\n$/, "")}
-                              </SyntaxHighlighter>
-                           </div>
-                        ) : (
-                           <code className={className} {...props}>
-                              {children}
-                           </code>
-                        );
-                     },
-                  }}
-               >
-                  {note.content}
-               </ReactMarkdown>
-            </article>
+               {/* Sidebar Navigation */}
+               <PublishedNavigation content={note.content} />
+            </div>
 
             {/* Footer */}
-            <footer className="mt-12 pt-8 border-t border-border">
+            <footer className="mt-12 pt-8 border-t border-border max-w-4xl">
                <div className="text-center text-sm text-muted-foreground">
                   <p>Published with Notiva</p>
                   <p className="mt-1">

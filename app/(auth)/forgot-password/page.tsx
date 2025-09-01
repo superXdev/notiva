@@ -11,8 +11,9 @@ import {
    CardHeader,
    CardTitle,
 } from "@/components/ui/card";
-import { FileText, Mail, ArrowLeft } from "lucide-react";
+import { Mail, ArrowLeft } from "lucide-react";
 import { resetPassword } from "../actions";
+import { Logo } from "@/components/ui/logo";
 
 export default function ForgotPasswordPage() {
    return (
@@ -21,7 +22,7 @@ export default function ForgotPasswordPage() {
             {/* Logo and Title */}
             <div className="text-center space-y-2">
                <div className="flex items-center justify-center gap-2 mb-4">
-                  <FileText className="h-8 w-8 text-primary" />
+                  <Logo width={32} height={32} />
                   <span className="text-2xl font-bold">Notiva</span>
                </div>
                <h1 className="text-2xl font-semibold tracking-tight">
