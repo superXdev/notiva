@@ -13,6 +13,17 @@ import {
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+   ContextMenu,
+   ContextMenuContent,
+   ContextMenuItem,
+   ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import {
+   Tooltip,
+   TooltipContent,
+   TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
    Dialog,
    DialogContent,
    DialogHeader,
@@ -29,6 +40,8 @@ import {
    Trash2,
    ChevronLeft,
    ChevronRight,
+   Download,
+   HelpCircle,
 } from "lucide-react";
 import { useNotes } from "@/contexts/notes-context";
 import { cn } from "@/lib/utils";
@@ -37,6 +50,7 @@ import {
    FolderSkeleton,
    LabelSkeleton,
 } from "@/components/ui/skeleton";
+import { exportToPDF } from "@/lib/pdf-export";
 
 interface SidebarProps {
    onNoteSelect?: () => void;
@@ -59,6 +73,7 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
       createLabel,
       deleteFolder,
       deleteLabel,
+      deleteNote,
       selectNote,
       selectFolder,
       selectLabel,
@@ -99,6 +114,27 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
    const handleNoteSelect = (noteId: string) => {
       selectNote(noteId);
       onNoteSelect?.();
+   };
+
+   const handleDeleteNote = async (note: any) => {
+      if (confirm(`Are you sure you want to delete "${note.title}"?`)) {
+         await deleteNote(note.id);
+      }
+   };
+
+   const handleExportPDF = async (note: any) => {
+      try {
+         await exportToPDF({
+            title: note.title,
+            content: note.content,
+            labels: note.labels,
+            createdAt: note.createdAt,
+            updatedAt: note.updatedAt,
+         });
+      } catch (error) {
+         console.error("Error exporting PDF:", error);
+         alert("Failed to export PDF. Please try again.");
+      }
    };
 
    const searchedNotes = filteredNotes.filter(
@@ -393,6 +429,20 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                            : noteCounts.all}
                         )
                      </h3>
+                     <Tooltip>
+                        <TooltipTrigger asChild>
+                           <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                           >
+                              <HelpCircle className="h-3 w-3" />
+                           </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                           <p>Right-click on notes for more options</p>
+                        </TooltipContent>
+                     </Tooltip>
                      {(selectedLabel || selectedFolder) && (
                         <Button
                            variant="ghost"
@@ -447,84 +497,103 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                      ) : (
                         <>
                            {searchedNotes.map((note) => (
-                              <div
-                                 key={note.id}
-                                 className={cn(
-                                    "p-2 md:p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:bg-accent hover:shadow-sm",
-                                    selectedNote?.id === note.id &&
-                                       "bg-accent border-accent-foreground/20 shadow-sm"
-                                 )}
-                                 onClick={() => handleNoteSelect(note.id)}
-                              >
-                                 {/* Folder Path */}
-                                 {note.folderId && (
-                                    <div className="flex items-center text-xs text-muted-foreground mb-1">
-                                       {getFolderPath(note.folderId).map(
-                                          (folder, index) => (
-                                             <span
-                                                key={folder.id}
-                                                className="flex items-center"
-                                             >
-                                                {index > 0 && (
-                                                   <ChevronRight className="h-3 w-3 mx-1" />
-                                                )}
-                                                <span className="truncate">
-                                                   {folder.name}
-                                                </span>
-                                             </span>
-                                          )
+                              <ContextMenu key={note.id}>
+                                 <ContextMenuTrigger asChild>
+                                    <div
+                                       className={cn(
+                                          "p-2 md:p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:bg-accent hover:shadow-sm group",
+                                          selectedNote?.id === note.id &&
+                                             "bg-accent border-accent-foreground/20 shadow-sm"
                                        )}
-                                       <ChevronRight className="h-3 w-3 mx-1" />
-                                    </div>
-                                 )}
+                                       onClick={() => handleNoteSelect(note.id)}
+                                    >
+                                       {/* Folder Path */}
+                                       {note.folderId && (
+                                          <div className="flex items-center text-xs text-muted-foreground mb-1">
+                                             {getFolderPath(note.folderId).map(
+                                                (folder, index) => (
+                                                   <span
+                                                      key={folder.id}
+                                                      className="flex items-center"
+                                                   >
+                                                      {index > 0 && (
+                                                         <ChevronRight className="h-3 w-3 mx-1" />
+                                                      )}
+                                                      <span className="truncate">
+                                                         {folder.name}
+                                                      </span>
+                                                   </span>
+                                                )
+                                             )}
+                                             <ChevronRight className="h-3 w-3 mx-1" />
+                                          </div>
+                                       )}
 
-                                 <h4 className="font-medium text-sm mb-1 truncate">
-                                    {note.title}
-                                 </h4>
-                                 {note.labels.length > 0 && (
-                                    <div className="flex flex-wrap gap-1 mt-2">
-                                       {note.labels
-                                          .slice(0, 2)
-                                          .map((labelName) => {
-                                             const label = labels.find(
-                                                (l) => l.name === labelName
-                                             );
-                                             return (
+                                       <h4 className="font-medium text-sm mb-1 truncate">
+                                          {note.title}
+                                       </h4>
+                                       {note.labels.length > 0 && (
+                                          <div className="flex flex-wrap gap-1 mt-2">
+                                             {note.labels
+                                                .slice(0, 2)
+                                                .map((labelName) => {
+                                                   const label = labels.find(
+                                                      (l) =>
+                                                         l.name === labelName
+                                                   );
+                                                   return (
+                                                      <Badge
+                                                         key={labelName}
+                                                         variant="secondary"
+                                                         className="text-xs px-1.5 py-0.5"
+                                                         style={
+                                                            label
+                                                               ? {
+                                                                    backgroundColor:
+                                                                       label.color +
+                                                                       "20",
+                                                                    color: label.color,
+                                                                 }
+                                                               : {}
+                                                         }
+                                                      >
+                                                         {labelName}
+                                                      </Badge>
+                                                   );
+                                                })}
+                                             {note.labels.length > 2 && (
                                                 <Badge
-                                                   key={labelName}
                                                    variant="secondary"
                                                    className="text-xs px-1.5 py-0.5"
-                                                   style={
-                                                      label
-                                                         ? {
-                                                              backgroundColor:
-                                                                 label.color +
-                                                                 "20",
-                                                              color: label.color,
-                                                           }
-                                                         : {}
-                                                   }
                                                 >
-                                                   {labelName}
+                                                   +{note.labels.length - 2}
                                                 </Badge>
-                                             );
-                                          })}
-                                       {note.labels.length > 2 && (
-                                          <Badge
-                                             variant="secondary"
-                                             className="text-xs px-1.5 py-0.5"
-                                          >
-                                             +{note.labels.length - 2}
-                                          </Badge>
+                                             )}
+                                          </div>
                                        )}
+                                       <div className="text-xs text-muted-foreground mt-2">
+                                          {new Date(
+                                             note.updatedAt
+                                          ).toLocaleDateString()}
+                                       </div>
                                     </div>
-                                 )}
-                                 <div className="text-xs text-muted-foreground mt-2">
-                                    {new Date(
-                                       note.updatedAt
-                                    ).toLocaleDateString()}
-                                 </div>
-                              </div>
+                                 </ContextMenuTrigger>
+                                 <ContextMenuContent>
+                                    <ContextMenuItem
+                                       onClick={() => handleDeleteNote(note)}
+                                       className="text-red-600 dark:text-red-400"
+                                    >
+                                       <Trash2 className="h-4 w-4 mr-2" />
+                                       Delete Note
+                                    </ContextMenuItem>
+                                    <ContextMenuItem
+                                       onClick={() => handleExportPDF(note)}
+                                    >
+                                       <Download className="h-4 w-4 mr-2" />
+                                       Export as PDF
+                                    </ContextMenuItem>
+                                 </ContextMenuContent>
+                              </ContextMenu>
                            ))}
 
                            {searchedNotes.length === 0 && (
