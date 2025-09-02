@@ -79,7 +79,7 @@ A modern note-taking application built with Next.js and Supabase.
 
 ## Tech Stack
 
--  **Frontend**: Next.js 14, React, TypeScript
+-  **Frontend**: Next.js 15, React, TypeScript
 -  **Styling**: Tailwind CSS, shadcn/ui
 -  **Authentication**: Supabase Auth
 -  **Database**: Supabase PostgreSQL with Row Level Security (RLS)
