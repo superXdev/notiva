@@ -372,23 +372,6 @@ export default function SettingsPage() {
 
                      <div className="p-4 bg-muted rounded-lg">
                         <h4 className="font-medium mb-2">
-                           Advanced AI Features
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-3">
-                           Enhanced AI capabilities for smarter note
-                           organization and content generation.
-                        </p>
-                        <div className="flex gap-2">
-                           <Badge variant="outline">Smart Tagging</Badge>
-                           <Badge variant="outline">
-                              Content Summarization
-                           </Badge>
-                           <Badge variant="outline">Auto-categorization</Badge>
-                        </div>
-                     </div>
-
-                     <div className="p-4 bg-muted rounded-lg">
-                        <h4 className="font-medium mb-2">
                            Collaboration Tools
                         </h4>
                         <p className="text-sm text-muted-foreground mb-3">
