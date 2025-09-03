@@ -55,9 +55,11 @@ export function NavigationHeader({ user }: NavigationHeaderProps) {
             <div className="flex items-center gap-3">
                <ThemeToggle />
 
-               <Button variant="ghost" size="sm" className="hidden sm:flex">
-                  <HelpCircle className="h-4 w-4 mr-2" />
-                  Help
+               <Button variant="ghost" size="sm" className="hidden sm:flex" asChild>
+                  <Link href="/help">
+                     <HelpCircle className="h-4 w-4 mr-2" />
+                     Help
+                  </Link>
                </Button>
 
                <DropdownMenu>
@@ -99,9 +101,11 @@ export function NavigationHeader({ user }: NavigationHeaderProps) {
                            Settings
                         </Link>
                      </DropdownMenuItem>
-                     <DropdownMenuItem className="sm:hidden">
-                        <HelpCircle className="h-4 w-4 mr-2" />
-                        Help
+                     <DropdownMenuItem className="sm:hidden" asChild>
+                        <Link href="/help" className="flex items-center w-full">
+                           <HelpCircle className="h-4 w-4 mr-2" />
+                           Help
+                        </Link>
                      </DropdownMenuItem>
                      <DropdownMenuSeparator />
                      <form action={signOut}>

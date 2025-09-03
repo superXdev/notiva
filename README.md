@@ -1,4 +1,14 @@
-# Notiva
+<p align="center">
+  <img src="https://peaceful-chimera-883c79.netlify.app/logo.png" alt="Notiva Logo" width="100">
+</p>
+
+<h1 align="center">Notiva</h1>
+
+<p align="center">
+  <i>Modern markdown note-taking platform with AI enhancement and professional publishing features.</i>
+</p>
+
+---
 
 Notiva is a modern markdown note-taking platform that transforms how you capture, organize, and share your ideas. Built with Next.js 15 and Supabase, it combines the simplicity of markdown editing with hierarchical organization, content enhancement tools, and professional publishing capabilities.
 
