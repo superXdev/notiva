@@ -935,6 +935,49 @@ export function NoteEditor() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                      <DropdownMenuItem
+                        onClick={handlePublish}
+                        disabled={isPublishing}
+                     >
+                        {selectedNote.published ? (
+                           <>
+                              <Eye className="h-4 w-4 mr-2" />
+                              {isPublishing ? "Unpublishing..." : "Unpublish"}
+                           </>
+                        ) : (
+                           <>
+                              <Globe className="h-4 w-4 mr-2" />
+                              {isPublishing ? "Publishing..." : "Publish"}
+                           </>
+                        )}
+                     </DropdownMenuItem>
+                     {selectedNote.published && (
+                        <DropdownMenuItem
+                           onClick={async () => {
+                              const url = getPublishedUrl();
+                              if (url) {
+                                 try {
+                                    await navigator.clipboard.writeText(url);
+                                    toast({
+                                       title: "Link copied!",
+                                       description:
+                                          "The published note link has been copied to your clipboard.",
+                                    });
+                                 } catch (error) {
+                                    toast({
+                                       title: "Failed to copy link",
+                                       description:
+                                          "Please try again or copy the link manually.",
+                                       variant: "destructive",
+                                    });
+                                 }
+                              }
+                           }}
+                        >
+                           <Link className="h-4 w-4 mr-2" />
+                           Copy Link
+                        </DropdownMenuItem>
+                     )}
+                     <DropdownMenuItem
                         onClick={handleExportPDF}
                         disabled={isExportingPDF}
                      >
