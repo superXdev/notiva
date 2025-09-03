@@ -18,6 +18,7 @@ import { useState } from "react";
 import { login } from "../actions";
 import { AuthMessage } from "@/components/auth-message";
 import { Logo } from "@/components/ui/logo";
+import { SubmitButton } from "@/components/submit-button";
 
 export default function LoginPage() {
    const [showPassword, setShowPassword] = useState(false);
@@ -110,9 +111,9 @@ export default function LoginPage() {
                            </Button>
                         </div>
                      </div>
-                     <Button type="submit" className="w-full" size="lg">
+                     <SubmitButton loadingText="Signing in...">
                         Sign in
-                     </Button>
+                     </SubmitButton>
                   </form>
 
                   {/* Forgot Password */}

@@ -10,6 +10,7 @@ import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { PublishedNavigation } from "@/components/published-navigation";
+import { PublishedActions } from "@/components/published-actions";
 
 interface PublishedNotePageProps {
    params: {
@@ -179,16 +180,21 @@ export default async function PublishedNotePage({
                <div className="flex-1 max-w-4xl">
                   {/* Header */}
                   <header className="mb-8">
-                     <div className="flex items-center justify-between mb-4">
-                        <h1 className="text-3xl font-bold text-foreground">
-                           {note.title}
-                        </h1>
-                        <div className="text-sm text-muted-foreground">
-                           Published{" "}
-                           {formatDistanceToNow(
-                              new Date(note.published_at || note.updated_at),
-                              { addSuffix: true }
-                           )}
+                     <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                           <h1 className="text-3xl font-bold text-foreground mb-2">
+                              {note.title}
+                           </h1>
+                           <div className="text-sm text-muted-foreground">
+                              Published{" "}
+                              {formatDistanceToNow(
+                                 new Date(note.published_at || note.updated_at),
+                                 { addSuffix: true }
+                              )}
+                           </div>
+                        </div>
+                        <div className="flex-shrink-0 ml-4">
+                           <PublishedActions note={note} />
                         </div>
                      </div>
 

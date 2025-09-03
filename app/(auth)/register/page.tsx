@@ -18,6 +18,7 @@ import { useState } from "react";
 import { signup } from "../actions";
 import { AuthMessage } from "@/components/auth-message";
 import { Logo } from "@/components/ui/logo";
+import { SubmitButton } from "@/components/submit-button";
 
 export default function RegisterPage() {
    const [showPassword, setShowPassword] = useState(false);
@@ -111,9 +112,9 @@ export default function RegisterPage() {
                            </Button>
                         </div>
                      </div>
-                     <Button type="submit" className="w-full" size="lg">
+                     <SubmitButton loadingText="Creating account...">
                         Create account
-                     </Button>
+                     </SubmitButton>
                   </form>
 
                   {/* Terms */}
