@@ -743,14 +743,14 @@ export function NoteEditor() {
                            },
                            ul({ children }) {
                               return (
-                                 <ul className="list-disc list-inside space-y-1 ml-4 my-4">
+                                 <ul className="list-disc list-outside space-y-0.5 ml-6 my-1">
                                     {children}
                                  </ul>
                               );
                            },
                            ol({ children }) {
                               return (
-                                 <ol className="list-decimal list-inside space-y-1 ml-4 my-4">
+                                 <ol className="list-decimal list-outside space-y-0.5 ml-6 my-1">
                                     {children}
                                  </ol>
                               );
@@ -780,7 +780,7 @@ export function NoteEditor() {
                               }
                               return (
                                  <li
-                                    className="text-foreground leading-relaxed pl-2"
+                                    className="text-foreground leading-relaxed"
                                     {...props}
                                  >
                                     {children}

@@ -302,6 +302,19 @@ export default function HelpPage() {
                      Privacy Policy
                   </Link>
                </div>
+               <div className="pt-2 border-t border-border/50 mt-4">
+                  <p className="text-xs">
+                     Presented by{" "}
+                     <Link 
+                        href="https://lunos.tech" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                     >
+                        lunos.tech
+                     </Link>
+                  </p>
+               </div>
             </footer>
          </div>
       </div>

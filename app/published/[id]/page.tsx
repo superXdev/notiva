@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Script from "next/script";
+import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -338,15 +339,28 @@ export default async function PublishedNotePage({
             </div>
 
             {/* Footer */}
-            <footer className="mt-12 pt-8 border-t border-border max-w-4xl">
-               <div className="text-center text-sm text-muted-foreground">
+            <footer className="mt-12 pt-8 border-t border-border">
+               <div className="text-center text-sm text-muted-foreground space-y-2">
                   <p>Published with Notiva</p>
-                  <p className="mt-1">
+                  <p>
                      Last updated{" "}
                      {formatDistanceToNow(new Date(note.updated_at), {
                         addSuffix: true,
                      })}
                   </p>
+                  <div className="pt-2 border-t border-border/50 mt-4">
+                     <p className="text-xs">
+                        Presented by{" "}
+                        <Link 
+                           href="https://lunos.tech" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           className="text-primary hover:underline"
+                        >
+                           lunos.tech
+                        </Link>
+                     </p>
+                  </div>
                </div>
             </footer>
          </div>

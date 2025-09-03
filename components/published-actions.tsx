@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Copy, Check } from "lucide-react";
 import { exportToPDF } from "@/lib/pdf-export";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface PublishedActionsProps {
   note: {
@@ -71,6 +72,8 @@ export function PublishedActions({ note }: PublishedActionsProps) {
 
   return (
     <div className="flex items-center gap-2">
+      <ThemeToggle />
+      
       <Button
         onClick={handlePDFExport}
         disabled={isExporting}
