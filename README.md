@@ -18,7 +18,7 @@ Whether you're documenting projects, writing articles, or managing knowledge bas
 
 ### Prerequisites
 
--  Node.js (v18 or higher)
+-  Node.js (v20 or higher) 
 -  pnpm
 -  Supabase account
 
@@ -124,6 +124,60 @@ pnpm build
 # Start production server
 pnpm start
 ```
+
+## Docker Deployment
+
+### Quick Docker Setup
+
+1. **Create environment file**
+   ```bash
+   cp .env.production .env.local
+   ```
+   
+   Edit `.env.local` with your values:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+   NEXT_PUBLIC_SITE_URL=https://your-domain.com
+   LUNOS_API_KEY=your_lunos_api_key
+   ```
+
+2. **Deploy with Docker Compose**
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Access your app**
+   Open http://localhost:3000
+
+### Manual Docker Commands
+
+```bash
+# Build image
+docker build -t notiva .
+
+# Run container
+docker run -d --name notiva-app -p 3000:3000 --env-file .env.local notiva
+```
+
+### Production Management
+
+```bash
+# View logs
+docker-compose logs -f notiva
+
+# Update application
+docker-compose down && git pull && docker-compose up -d --build
+
+# Stop application
+docker-compose down
+```
+
+### Requirements
+
+- Docker & Docker Compose
+- Configured Supabase project
+- Domain name (recommended for production)
 
 ## Contributing
 

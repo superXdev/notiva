@@ -332,63 +332,6 @@ export default function SettingsPage() {
                </CardContent>
             </Card>
 
-            {/* Coming Soon Features */}
-            <Card>
-               <CardHeader>
-                  <CardTitle>Coming Soon</CardTitle>
-                  <CardDescription>Features we're working on</CardDescription>
-               </CardHeader>
-               <CardContent>
-                  <div className="space-y-4">
-                     <div className="p-4 bg-muted rounded-lg">
-                        <h4 className="font-medium mb-2">Notes API</h4>
-                        <p className="text-sm text-muted-foreground mb-3">
-                           Access your notes programmatically with a secure REST
-                           API for integration with other applications.
-                        </p>
-                        <div className="flex gap-2">
-                           <Badge variant="outline">REST API</Badge>
-                           <Badge variant="outline">
-                              API Key Authentication
-                           </Badge>
-                           <Badge variant="outline">CRUD Operations</Badge>
-                        </div>
-                     </div>
-
-                     <div className="p-4 bg-muted rounded-lg">
-                        <h4 className="font-medium mb-2">
-                           Google Drive Integration
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-3">
-                           Seamlessly backup and sync your notes across all your
-                           devices using Google Drive.
-                        </p>
-                        <div className="flex gap-2">
-                           <Badge variant="outline">Manual Backup</Badge>
-                           <Badge variant="outline">Cross-device Sync</Badge>
-                           <Badge variant="outline">Version History</Badge>
-                        </div>
-                     </div>
-
-                     <div className="p-4 bg-muted rounded-lg">
-                        <h4 className="font-medium mb-2">
-                           Collaboration Tools
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-3">
-                           Share notes and collaborate with team members in
-                           real-time.
-                        </p>
-                        <div className="flex gap-2">
-                           <Badge variant="outline">Real-time Editing</Badge>
-                           <Badge variant="outline">Comments & Feedback</Badge>
-                           <Badge variant="outline">
-                              Permission Management
-                           </Badge>
-                        </div>
-                     </div>
-                  </div>
-               </CardContent>
-            </Card>
          </div>
       </div>
    );
