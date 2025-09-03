@@ -175,15 +175,15 @@ export default async function PublishedNotePage({
                __html: JSON.stringify(structuredData),
             }}
          />
-         <div className="container mx-auto px-4 py-8 max-w-7xl">
-            <div className="flex gap-8">
+         <div className="container mx-auto px-4 py-4 md:py-8 max-w-7xl">
+            <div className="lg:flex lg:gap-8">
                {/* Main Content */}
                <div className="flex-1 max-w-4xl">
                   {/* Header */}
-                  <header className="mb-8">
-                     <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                           <h1 className="text-3xl font-bold text-foreground mb-2">
+                  <header className="mb-6 md:mb-8">
+                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4">
+                        <div className="flex-1 min-w-0">
+                           <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-2 leading-tight">
                               {note.title}
                            </h1>
                            <div className="text-sm text-muted-foreground">
@@ -194,7 +194,7 @@ export default async function PublishedNotePage({
                               )}
                            </div>
                         </div>
-                        <div className="flex-shrink-0 ml-4">
+                        <div className="flex-shrink-0">
                            <PublishedActions note={note} />
                         </div>
                      </div>
@@ -214,7 +214,7 @@ export default async function PublishedNotePage({
                   </header>
 
                   {/* Content */}
-                  <article className="prose prose-lg max-w-none dark:prose-invert [&_h1]:scroll-mt-20 [&_h2]:scroll-mt-20 [&_h3]:scroll-mt-20 [&_h4]:scroll-mt-20 [&_h5]:scroll-mt-20 [&_h6]:scroll-mt-20">
+                  <article className="prose prose-sm md:prose-base lg:prose-lg max-w-none dark:prose-invert [&_h1]:scroll-mt-20 [&_h2]:scroll-mt-20 [&_h3]:scroll-mt-20 [&_h4]:scroll-mt-20 [&_h5]:scroll-mt-20 [&_h6]:scroll-mt-20">
                      <ReactMarkdown
                         remarkPlugins={[remarkGfm, remarkBreaks]}
                         components={{

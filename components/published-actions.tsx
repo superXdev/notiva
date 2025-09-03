@@ -71,7 +71,7 @@ export function PublishedActions({ note }: PublishedActionsProps) {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1 md:gap-2">
       <ThemeToggle />
       
       <Button
@@ -79,27 +79,34 @@ export function PublishedActions({ note }: PublishedActionsProps) {
         disabled={isExporting}
         variant="outline"
         size="sm"
-        className="flex items-center gap-2"
+        className="flex items-center gap-1 md:gap-2"
       >
         <Download className="h-4 w-4" />
-        {isExporting ? "Exporting..." : "Download PDF"}
+        <span className="hidden sm:inline">
+          {isExporting ? "Exporting..." : "Download PDF"}
+        </span>
+        <span className="sm:hidden">
+          {isExporting ? "..." : "PDF"}
+        </span>
       </Button>
       
       <Button
         onClick={handleCopyMarkdown}
         variant="outline"
         size="sm"
-        className="flex items-center gap-2"
+        className="flex items-center gap-1 md:gap-2"
       >
         {isCopied ? (
           <>
             <Check className="h-4 w-4" />
-            Copied!
+            <span className="hidden sm:inline">Copied!</span>
+            <span className="sm:hidden">✓</span>
           </>
         ) : (
           <>
             <Copy className="h-4 w-4" />
-            Copy Markdown
+            <span className="hidden sm:inline">Copy Markdown</span>
+            <span className="sm:hidden">Copy</span>
           </>
         )}
       </Button>
