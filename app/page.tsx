@@ -19,7 +19,7 @@ export default async function HomePage() {
       <div className="h-screen flex flex-col bg-background">
          <NavigationHeader user={user} />
          <div className="flex flex-1 overflow-hidden">
-            <div className="hidden md:block">
+            <div className="hidden md:block w-80 flex-shrink-0">
                <Sidebar />
             </div>
             <NoteEditor key="note-editor" />

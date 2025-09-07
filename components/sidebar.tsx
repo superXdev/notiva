@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/dialog";
 import {
    Plus,
-   Search,
    Folder,
    FileText,
    Tag,
@@ -43,6 +42,8 @@ import {
    Download,
    HelpCircle,
    Edit,
+   ChevronDown,
+   ChevronUp,
 } from "lucide-react";
 import { useNotes } from "@/contexts/notes-context";
 import { cn } from "@/lib/utils";
@@ -52,7 +53,6 @@ import {
    LabelSkeleton,
 } from "@/components/ui/skeleton";
 import { exportToPDF } from "@/lib/pdf-export";
-import { SearchModal } from "./search-modal";
 
 interface SidebarProps {
    onNoteSelect?: () => void;
@@ -85,7 +85,8 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
       refreshNoteCounts,
    } = useNotes();
 
-   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+   const [isFoldersCollapsed, setIsFoldersCollapsed] = useState(false); // Open by default
+   const [isLabelsCollapsed, setIsLabelsCollapsed] = useState(true); // Closed by default
    const [newFolderName, setNewFolderName] = useState("");
    const [newLabelName, setNewLabelName] = useState("");
    const [newLabelColor, setNewLabelColor] = useState("#3b82f6");
@@ -97,19 +98,6 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
       name: string;
    } | null>(null);
    const [renameFolderName, setRenameFolderName] = useState("");
-
-   // Global keyboard shortcut for search (Cmd/Ctrl + K)
-   useEffect(() => {
-      const handleKeyDown = (e: KeyboardEvent) => {
-         if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-            e.preventDefault();
-            setIsSearchModalOpen(true);
-         }
-      };
-
-      document.addEventListener("keydown", handleKeyDown);
-      return () => document.removeEventListener("keydown", handleKeyDown);
-   }, []);
 
    const handleCreateNote = async () => {
       try {
@@ -199,10 +187,10 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
    };
 
    return (
-      <div className="w-full md:w-80 border-r border-border bg-card flex flex-col h-full">
+      <div className="w-full border-r border-border bg-card flex flex-col h-full">
          {/* Header */}
          <div className="p-3 md:p-4 border-b border-border">
-            <div className="flex items-center justify-between mb-3 md:mb-4">
+            <div className="flex items-center justify-between">
                <h1 className="text-lg md:text-xl font-semibold">Notes</h1>
                <Button
                   size="sm"
@@ -214,64 +202,64 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                   <span className="sm:hidden">New</span>
                </Button>
             </div>
-
-            {/* Search */}
-            <div className="relative">
-               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-               <Input
-                  placeholder="Search notes..."
-                  className="pl-9 pr-20 text-sm cursor-pointer"
-                  onClick={() => setIsSearchModalOpen(true)}
-                  readOnly
-               />
-               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">
-                  ⌘K
-               </div>
-            </div>
          </div>
 
          <ScrollArea className="flex-1">
             {/* Folders Section */}
             <div className="p-3 md:p-4">
-               <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs md:text-sm font-medium text-muted-foreground">
-                     Folders
-                  </h3>
-                  <Dialog
-                     open={isCreateFolderOpen}
-                     onOpenChange={setIsCreateFolderOpen}
+               <div className="relative mb-3">
+                  <Button
+                     variant="ghost"
+                     size="sm"
+                     className="flex items-center gap-2 p-0 h-auto font-medium text-muted-foreground hover:text-foreground"
+                     onClick={() => setIsFoldersCollapsed(!isFoldersCollapsed)}
                   >
-                     <DialogTrigger asChild>
-                        <Button
-                           variant="ghost"
-                           size="sm"
-                           className="h-6 w-6 p-0"
-                        >
-                           <Plus className="h-3 w-3" />
-                        </Button>
-                     </DialogTrigger>
-                     <DialogContent className="w-[90vw] max-w-md">
-                        <DialogHeader>
-                           <DialogTitle>Create Folder</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                           <Input
-                              placeholder="Folder name"
-                              value={newFolderName}
-                              onChange={(e) => setNewFolderName(e.target.value)}
-                              onKeyDown={(e) =>
-                                 e.key === "Enter" && handleCreateFolder()
-                              }
-                           />
+                     {isFoldersCollapsed ? (
+                        <ChevronRight className="h-3 w-3" />
+                     ) : (
+                        <ChevronDown className="h-3 w-3" />
+                     )}
+                     <h3 className="text-xs md:text-sm font-medium">Folders</h3>
+                  </Button>
+                  <div className="absolute right-2 top-0">
+                     <Dialog
+                        open={isCreateFolderOpen}
+                        onOpenChange={setIsCreateFolderOpen}
+                     >
+                        <DialogTrigger asChild>
                            <Button
-                              onClick={handleCreateFolder}
-                              className="w-full"
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-1"
                            >
-                              Create Folder
+                              <Plus className="h-3 w-3" />
                            </Button>
-                        </div>
-                     </DialogContent>
-                  </Dialog>
+                        </DialogTrigger>
+                        <DialogContent className="w-[90vw] max-w-md">
+                           <DialogHeader>
+                              <DialogTitle>Create Folder</DialogTitle>
+                           </DialogHeader>
+                           <div className="space-y-4">
+                              <Input
+                                 placeholder="Folder name"
+                                 value={newFolderName}
+                                 onChange={(e) =>
+                                    setNewFolderName(e.target.value)
+                                 }
+                                 onKeyDown={(e) =>
+                                    e.key === "Enter" && handleCreateFolder()
+                                 }
+                              />
+                              <Button
+                                 onClick={handleCreateFolder}
+                                 className="w-full"
+                              >
+                                 Create Folder
+                              </Button>
+                           </div>
+                        </DialogContent>
+                     </Dialog>
+                  </div>
 
                   {/* Rename Folder Dialog */}
                   <Dialog
@@ -305,187 +293,211 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                </div>
 
                {/* Scrollable folders container - height for at least 3 items (3 * 32px + 4px spacing = 100px) */}
-               <div className="h-[130px] overflow-y-auto scrollbar-thin">
-                  <div className="space-y-1">
-                     <Button
-                        variant={!selectedFolder ? "secondary" : "ghost"}
-                        className="w-full justify-start text-sm h-8"
-                        onClick={() => selectFolder()}
-                     >
-                        <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
-                        <span className="truncate">
-                           All Notes ({noteCounts.all})
-                        </span>
-                     </Button>
+               {!isFoldersCollapsed && (
+                  <div className="h-[130px] overflow-y-auto scrollbar-thin">
+                     <div className="space-y-1">
+                        <Button
+                           variant={!selectedFolder ? "secondary" : "ghost"}
+                           className="w-full justify-start text-sm h-8"
+                           onClick={() => selectFolder()}
+                        >
+                           <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
+                           <span className="truncate">
+                              All Notes ({noteCounts.all})
+                           </span>
+                        </Button>
 
-                     {isLoading
-                        ? // Show skeleton loading for folders
-                          Array.from({ length: 3 }).map((_, index) => (
-                             <FolderSkeleton key={index} className="h-8" />
-                          ))
-                        : folders.map((folder) => (
-                             <div
-                                key={folder.id}
-                                className="flex items-center group"
-                             >
-                                <Button
-                                   variant={
-                                      selectedFolder?.id === folder.id
-                                         ? "secondary"
-                                         : "ghost"
-                                   }
-                                   className="flex-1 justify-start text-sm h-8 min-w-0"
-                                   onClick={() => selectFolder(folder.id)}
+                        {isLoading
+                           ? // Show skeleton loading for folders
+                             Array.from({ length: 3 }).map((_, index) => (
+                                <FolderSkeleton key={index} className="h-8" />
+                             ))
+                           : folders.map((folder) => (
+                                <div
+                                   key={folder.id}
+                                   className="flex items-center group"
                                 >
-                                   <Folder className="h-4 w-4 mr-2 flex-shrink-0" />
-                                   <span className="truncate">
-                                      {folder.name} (
-                                      {noteCounts.byFolder[folder.id] || 0})
-                                   </span>
-                                </Button>
-                                <DropdownMenu>
-                                   <DropdownMenuTrigger asChild>
-                                      <Button
-                                         variant="ghost"
-                                         size="sm"
-                                         className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 flex-shrink-0"
-                                      >
-                                         <MoreHorizontal className="h-3 w-3" />
-                                      </Button>
-                                   </DropdownMenuTrigger>
-                                   <DropdownMenuContent>
-                                      <DropdownMenuItem
-                                         onClick={() =>
-                                            openRenameDialog(folder)
-                                         }
-                                      >
-                                         <Edit className="h-4 w-4 mr-2" />
-                                         Rename
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem
-                                         onClick={() => deleteFolder(folder.id)}
-                                         className="text-destructive"
-                                      >
-                                         <Trash2 className="h-4 w-4 mr-2" />
-                                         Delete
-                                      </DropdownMenuItem>
-                                   </DropdownMenuContent>
-                                </DropdownMenu>
-                             </div>
-                          ))}
+                                   <Button
+                                      variant={
+                                         selectedFolder?.id === folder.id
+                                            ? "secondary"
+                                            : "ghost"
+                                      }
+                                      className="flex-1 justify-start text-sm h-8 min-w-0"
+                                      onClick={() => selectFolder(folder.id)}
+                                   >
+                                      <Folder className="h-4 w-4 mr-2 flex-shrink-0" />
+                                      <span className="truncate">
+                                         {folder.name} (
+                                         {noteCounts.byFolder[folder.id] || 0})
+                                      </span>
+                                   </Button>
+                                   <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                         <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 flex-shrink-0"
+                                         >
+                                            <MoreHorizontal className="h-3 w-3" />
+                                         </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent>
+                                         <DropdownMenuItem
+                                            onClick={() =>
+                                               openRenameDialog(folder)
+                                            }
+                                         >
+                                            <Edit className="h-4 w-4 mr-2" />
+                                            Rename
+                                         </DropdownMenuItem>
+                                         <DropdownMenuItem
+                                            onClick={() =>
+                                               deleteFolder(folder.id)
+                                            }
+                                            className="text-destructive"
+                                         >
+                                            <Trash2 className="h-4 w-4 mr-2" />
+                                            Delete
+                                         </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                   </DropdownMenu>
+                                </div>
+                             ))}
+                     </div>
                   </div>
-               </div>
+               )}
             </div>
 
             <Separator />
 
             {/* Labels Section */}
             <div className="p-3 md:p-4">
-               <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs md:text-sm font-medium text-muted-foreground">
-                     Labels{" "}
-                     {selectedLabel &&
-                        `(${noteCounts.byLabel[selectedLabel.id] || 0} notes)`}
-                  </h3>
-                  <Dialog
-                     open={isCreateLabelOpen}
-                     onOpenChange={setIsCreateLabelOpen}
+               <div className="relative mb-3">
+                  <Button
+                     variant="ghost"
+                     size="sm"
+                     className="flex items-center gap-2 p-0 h-auto font-medium text-muted-foreground hover:text-foreground"
+                     onClick={() => setIsLabelsCollapsed(!isLabelsCollapsed)}
                   >
-                     <DialogTrigger asChild>
-                        <Button
-                           variant="ghost"
-                           size="sm"
-                           className="h-6 w-6 p-0"
-                        >
-                           <Plus className="h-3 w-3" />
-                        </Button>
-                     </DialogTrigger>
-                     <DialogContent className="w-[90vw] max-w-md">
-                        <DialogHeader>
-                           <DialogTitle>Create Label</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                           <Input
-                              placeholder="Label name"
-                              value={newLabelName}
-                              onChange={(e) => setNewLabelName(e.target.value)}
-                           />
-                           <div className="flex items-center space-x-2">
-                              <input
-                                 type="color"
-                                 value={newLabelColor}
-                                 onChange={(e) =>
-                                    setNewLabelColor(e.target.value)
-                                 }
-                                 className="w-8 h-8 rounded border"
-                              />
-                              <span className="text-sm text-muted-foreground">
-                                 Color
-                              </span>
-                           </div>
+                     {isLabelsCollapsed ? (
+                        <ChevronRight className="h-3 w-3" />
+                     ) : (
+                        <ChevronDown className="h-3 w-3" />
+                     )}
+                     <h3 className="text-xs md:text-sm font-medium">
+                        Labels{" "}
+                        {selectedLabel &&
+                           `(${
+                              noteCounts.byLabel[selectedLabel.id] || 0
+                           } notes)`}
+                     </h3>
+                  </Button>
+                  <div className="absolute right-2 top-0">
+                     <Dialog
+                        open={isCreateLabelOpen}
+                        onOpenChange={setIsCreateLabelOpen}
+                     >
+                        <DialogTrigger asChild>
                            <Button
-                              onClick={handleCreateLabel}
-                              className="w-full"
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-1"
                            >
-                              Create Label
+                              <Plus className="h-3 w-3" />
                            </Button>
-                        </div>
-                     </DialogContent>
-                  </Dialog>
+                        </DialogTrigger>
+                        <DialogContent className="w-[90vw] max-w-md">
+                           <DialogHeader>
+                              <DialogTitle>Create Label</DialogTitle>
+                           </DialogHeader>
+                           <div className="space-y-4">
+                              <Input
+                                 placeholder="Label name"
+                                 value={newLabelName}
+                                 onChange={(e) =>
+                                    setNewLabelName(e.target.value)
+                                 }
+                              />
+                              <div className="flex items-center space-x-2">
+                                 <input
+                                    type="color"
+                                    value={newLabelColor}
+                                    onChange={(e) =>
+                                       setNewLabelColor(e.target.value)
+                                    }
+                                    className="w-8 h-8 rounded border"
+                                 />
+                                 <span className="text-sm text-muted-foreground">
+                                    Color
+                                 </span>
+                              </div>
+                              <Button
+                                 onClick={handleCreateLabel}
+                                 className="w-full"
+                              >
+                                 Create Label
+                              </Button>
+                           </div>
+                        </DialogContent>
+                     </Dialog>
+                  </div>
                </div>
 
-               <div className="flex flex-wrap gap-1.5">
-                  {isLoading
-                     ? // Show skeleton loading for labels
-                       Array.from({ length: 4 }).map((_, index) => (
-                          <LabelSkeleton key={index} />
-                       ))
-                     : labels.map((label) => (
-                          <div key={label.id} className="group relative">
-                             <Badge
-                                variant={
-                                   selectedLabel?.id === label.id
-                                      ? "default"
-                                      : "secondary"
-                                }
-                                style={{
-                                   backgroundColor:
+               {!isLabelsCollapsed && (
+                  <div className="flex flex-wrap gap-1.5">
+                     {isLoading
+                        ? // Show skeleton loading for labels
+                          Array.from({ length: 4 }).map((_, index) => (
+                             <LabelSkeleton key={index} />
+                          ))
+                        : labels.map((label) => (
+                             <div key={label.id} className="group relative">
+                                <Badge
+                                   variant={
                                       selectedLabel?.id === label.id
-                                         ? label.color
-                                         : label.color + "20",
-                                   color:
-                                      selectedLabel?.id === label.id
-                                         ? "white"
-                                         : label.color,
-                                }}
-                                className="cursor-pointer text-xs hover:opacity-80 transition-all"
-                                onClick={() =>
-                                   selectLabel(
-                                      selectedLabel?.id === label.id
-                                         ? undefined
-                                         : label.id
-                                   )
-                                }
-                             >
-                                <Tag className="h-3 w-3 mr-1" />
-                                <span className="truncate max-w-[80px]">
-                                   {label.name}
-                                </span>
-                             </Badge>
-                             <Button
-                                variant="ghost"
-                                size="sm"
-                                className="absolute -top-1 -right-1 h-4 w-4 p-0 opacity-0 group-hover:opacity-100 bg-destructive text-destructive-foreground rounded-full text-xs"
-                                onClick={(e) => {
-                                   e.stopPropagation();
-                                   deleteLabel(label.id);
-                                }}
-                             >
-                                ×
-                             </Button>
-                          </div>
-                       ))}
-               </div>
+                                         ? "default"
+                                         : "secondary"
+                                   }
+                                   style={{
+                                      backgroundColor:
+                                         selectedLabel?.id === label.id
+                                            ? label.color
+                                            : label.color + "20",
+                                      color:
+                                         selectedLabel?.id === label.id
+                                            ? "white"
+                                            : label.color,
+                                   }}
+                                   className="cursor-pointer text-xs hover:opacity-80 transition-all"
+                                   onClick={() =>
+                                      selectLabel(
+                                         selectedLabel?.id === label.id
+                                            ? undefined
+                                            : label.id
+                                      )
+                                   }
+                                >
+                                   <Tag className="h-3 w-3 mr-1" />
+                                   <span className="truncate max-w-[80px]">
+                                      {label.name}
+                                   </span>
+                                </Badge>
+                                <Button
+                                   variant="ghost"
+                                   size="sm"
+                                   className="absolute -top-1 -right-1 h-4 w-4 p-0 opacity-0 group-hover:opacity-100 bg-destructive text-destructive-foreground rounded-full text-xs"
+                                   onClick={(e) => {
+                                      e.stopPropagation();
+                                      deleteLabel(label.id);
+                                   }}
+                                >
+                                   ×
+                                </Button>
+                             </div>
+                          ))}
+                  </div>
+               )}
             </div>
 
             <Separator />
@@ -687,13 +699,6 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                </div>
             </div>
          </ScrollArea>
-
-         {/* Search Modal */}
-         <SearchModal
-            isOpen={isSearchModalOpen}
-            onClose={() => setIsSearchModalOpen(false)}
-            onNoteSelect={onNoteSelect}
-         />
       </div>
    );
 }

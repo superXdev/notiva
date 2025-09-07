@@ -23,17 +23,36 @@ import { signOut } from "@/app/(auth)/actions";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { SearchModal } from "@/components/search-modal";
+import { useState, useEffect } from "react";
 
 interface NavigationHeaderProps {
    user: SupabaseUser;
 }
 
 export function NavigationHeader({ user }: NavigationHeaderProps) {
+   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+
    // Get user initials for avatar
    const getUserInitials = (email: string) => {
       const name = email.split("@")[0];
       return name.substring(0, 2).toUpperCase();
    };
+
+   // Global keyboard shortcut for search (Cmd/Ctrl + K)
+   useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+         if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+            e.preventDefault();
+            setIsSearchModalOpen(true);
+         }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
+   }, []);
 
    return (
       <header className="h-14 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -51,11 +70,32 @@ export function NavigationHeader({ user }: NavigationHeaderProps) {
                </div>
             </div>
 
-            {/* Right side - User menu */}
+            {/* Right side - Search, theme toggle, help, and user menu */}
             <div className="flex items-center gap-3">
+               {/* Search Input - Hidden on mobile, shown on desktop */}
+               <div className="hidden md:block">
+                  <div className="relative">
+                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                     <Input
+                        placeholder="Search notes..."
+                        className="pl-9 pr-20 text-sm cursor-pointer w-64"
+                        onClick={() => setIsSearchModalOpen(true)}
+                        readOnly
+                     />
+                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">
+                        ⌘K
+                     </div>
+                  </div>
+               </div>
+
                <ThemeToggle />
 
-               <Button variant="ghost" size="sm" className="hidden sm:flex" asChild>
+               <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hidden sm:flex"
+                  asChild
+               >
                   <Link href="/help">
                      <HelpCircle className="h-4 w-4 mr-2" />
                      Help
@@ -126,6 +166,12 @@ export function NavigationHeader({ user }: NavigationHeaderProps) {
                </DropdownMenu>
             </div>
          </div>
+
+         {/* Search Modal */}
+         <SearchModal
+            isOpen={isSearchModalOpen}
+            onClose={() => setIsSearchModalOpen(false)}
+         />
       </header>
    );
 }
