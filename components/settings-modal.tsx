@@ -6,7 +6,10 @@ import {
    DialogContent,
    DialogHeader,
    DialogTitle,
+   DialogOverlay,
+   DialogPortal,
 } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
    Card,
    CardContent,
@@ -31,12 +34,9 @@ import {
    Cloud,
    Download,
    Upload,
-   Settings,
    Shield,
    Database,
    X,
-   User,
-   Bell,
    Palette,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -47,20 +47,9 @@ interface SettingsModalProps {
    onClose: () => void;
 }
 
-type SettingsSection =
-   | "general"
-   | "api"
-   | "backup"
-   | "notifications"
-   | "appearance";
+type SettingsSection = "api" | "backup" | "appearance";
 
 const settingsSections = [
-   {
-      id: "general" as SettingsSection,
-      title: "General",
-      icon: Settings,
-      description: "Basic settings and preferences",
-   },
    {
       id: "api" as SettingsSection,
       title: "API Keys",
@@ -74,12 +63,6 @@ const settingsSections = [
       description: "Backup and sync settings",
    },
    {
-      id: "notifications" as SettingsSection,
-      title: "Notifications",
-      icon: Bell,
-      description: "Notification preferences",
-   },
-   {
       id: "appearance" as SettingsSection,
       title: "Appearance",
       icon: Palette,
@@ -88,8 +71,7 @@ const settingsSections = [
 ];
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-   const [activeSection, setActiveSection] =
-      useState<SettingsSection>("general");
+   const [activeSection, setActiveSection] = useState<SettingsSection>("api");
    const [showApiKey, setShowApiKey] = useState(false);
    const [apiKey, setApiKey] = useState("nt_..."); // Placeholder
    const [isLoading, setIsLoading] = useState(false);
@@ -157,44 +139,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
    const renderSectionContent = () => {
       switch (activeSection) {
-         case "general":
-            return (
-               <div className="space-y-6">
-                  <Card>
-                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                           <User className="h-5 w-5" />
-                           Profile Settings
-                        </CardTitle>
-                        <CardDescription>
-                           Manage your profile information
-                        </CardDescription>
-                     </CardHeader>
-                     <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                           <Label htmlFor="display-name">Display Name</Label>
-                           <Input
-                              id="display-name"
-                              placeholder="Enter your display name"
-                              defaultValue="User"
-                           />
-                        </div>
-                        <div className="space-y-2">
-                           <Label htmlFor="email">Email</Label>
-                           <Input
-                              id="email"
-                              type="email"
-                              placeholder="Enter your email"
-                              defaultValue="user@example.com"
-                              disabled
-                           />
-                        </div>
-                        <Button>Save Changes</Button>
-                     </CardContent>
-                  </Card>
-               </div>
-            );
-
          case "api":
             return (
                <div className="space-y-6">
@@ -361,61 +305,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                </div>
             );
 
-         case "notifications":
-            return (
-               <div className="space-y-6">
-                  <Card>
-                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                           <Bell className="h-5 w-5" />
-                           Notification Preferences
-                        </CardTitle>
-                        <CardDescription>
-                           Configure how you receive notifications
-                        </CardDescription>
-                     </CardHeader>
-                     <CardContent className="space-y-4">
-                        <div className="space-y-4">
-                           <div className="flex items-center justify-between">
-                              <div>
-                                 <p className="text-sm font-medium">
-                                    Email Notifications
-                                 </p>
-                                 <p className="text-sm text-muted-foreground">
-                                    Receive notifications via email
-                                 </p>
-                              </div>
-                              <Button variant="outline" size="sm">
-                                 Enable
-                              </Button>
-                           </div>
-                           <div className="flex items-center justify-between">
-                              <div>
-                                 <p className="text-sm font-medium">
-                                    Browser Notifications
-                                 </p>
-                                 <p className="text-sm text-muted-foreground">
-                                    Show browser notifications
-                                 </p>
-                              </div>
-                              <Button variant="outline" size="sm">
-                                 Enable
-                              </Button>
-                           </div>
-                        </div>
-                        <Alert>
-                           <Bell className="h-4 w-4" />
-                           <AlertDescription>
-                              <strong>Coming Soon:</strong> Notification system
-                              is currently in development. You'll be able to
-                              configure various notification preferences here.
-                           </AlertDescription>
-                        </Alert>
-                     </CardContent>
-                  </Card>
-               </div>
-            );
-
          case "appearance":
             return (
                <div className="space-y-6">
@@ -476,83 +365,139 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
    return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-         <DialogContent className="max-w-7xl w-[95vw] sm:w-[90vw] sm:max-w-7xl md:w-[85vw] lg:w-[80vw] xl:w-[75vw] 2xl:w-[70vw] h-[90vh] p-0" showCloseButton={false}>
-            <div className="flex flex-col sm:flex-row h-full">
-               {/* Sidebar */}
-               <div className="w-full sm:w-64 md:w-72 lg:w-80 border-b sm:border-b-0 sm:border-r border-border bg-muted/30 flex flex-col">
-                  <div className="p-6 border-b border-border">
-                     <DialogTitle className="text-xl font-semibold">
-                        Settings
-                     </DialogTitle>
-                  </div>
-                  <ScrollArea className="flex-1">
-                     <div className="p-4 space-y-1">
-                        {settingsSections.map((section) => {
-                           const Icon = section.icon;
-                           return (
-                              <Button
-                                 key={section.id}
-                                 variant={
-                                    activeSection === section.id
-                                       ? "secondary"
-                                       : "ghost"
-                                 }
-                                 className={cn(
-                                    "w-full justify-start h-auto p-3",
-                                    activeSection === section.id &&
-                                       "bg-secondary"
-                                 )}
-                                 onClick={() => setActiveSection(section.id)}
-                              >
-                                 <div className="flex items-center gap-3">
-                                    <Icon className="h-4 w-4 flex-shrink-0" />
-                                    <div className="text-left min-w-0">
-                                       <div className="font-medium text-sm">
-                                          {section.title}
-                                       </div>
-                                       <div className="text-xs text-muted-foreground hidden sm:block">
-                                          {section.description}
-                                       </div>
-                                    </div>
-                                 </div>
-                              </Button>
-                           );
-                        })}
+         <DialogPortal>
+            <DialogOverlay className="z-[60]" />
+            <DialogPrimitive.Content
+               className={cn(
+                  "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-[60] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
+                  "max-w-7xl w-[95vw] sm:w-[90vw] sm:max-w-7xl md:w-[85vw] lg:w-[80vw] xl:w-[75vw] 2xl:w-[70vw] h-[90vh] p-0"
+               )}
+            >
+               <div className="flex flex-col h-full">
+                  {/* Mobile Navigation Tabs */}
+                  <div className="sm:hidden border-b border-border bg-muted/30 overflow-hidden">
+                     <div className="p-4 pb-0">
+                        <DialogTitle className="text-xl font-semibold mb-3">
+                           Settings
+                        </DialogTitle>
                      </div>
-                  </ScrollArea>
-               </div>
-
-               {/* Main Content */}
-               <div className="flex-1 flex flex-col">
-                  <div className="p-6 border-b border-border">
-                     <div className="flex items-center justify-between">
-                        <div>
-                           <h2 className="text-2xl font-semibold">
-                              {
-                                 settingsSections.find(
-                                    (s) => s.id === activeSection
-                                 )?.title
-                              }
-                           </h2>
-                           <p className="text-muted-foreground">
-                              {
-                                 settingsSections.find(
-                                    (s) => s.id === activeSection
-                                 )?.description
-                              }
-                           </p>
+                     <div className="overflow-x-auto pb-3">
+                        <div className="flex gap-2 px-4">
+                           {settingsSections.map((section) => {
+                              const Icon = section.icon;
+                              return (
+                                 <Button
+                                    key={section.id}
+                                    variant={
+                                       activeSection === section.id
+                                          ? "secondary"
+                                          : "ghost"
+                                    }
+                                    size="sm"
+                                    className={cn(
+                                       "flex-shrink-0 gap-2 h-8 text-xs px-2",
+                                       activeSection === section.id &&
+                                          "bg-secondary shadow-sm"
+                                    )}
+                                    onClick={() => setActiveSection(section.id)}
+                                 >
+                                    <Icon className="h-3.5 w-3.5" />
+                                    <span className="whitespace-nowrap">
+                                       {section.title}
+                                    </span>
+                                 </Button>
+                              );
+                           })}
                         </div>
-                        <Button variant="ghost" size="sm" onClick={onClose}>
-                           <X className="h-4 w-4" />
-                        </Button>
                      </div>
                   </div>
-                  <ScrollArea className="flex-1">
-                     <div className="p-6">{renderSectionContent()}</div>
-                  </ScrollArea>
+
+                  <div className="flex flex-1 min-h-0">
+                     {/* Desktop Sidebar */}
+                     <div className="hidden sm:flex sm:w-64 md:w-72 lg:w-80 border-r border-border bg-muted/30 flex-col">
+                        <div className="p-6 border-b border-border">
+                           <DialogTitle className="text-xl font-semibold">
+                              Settings
+                           </DialogTitle>
+                        </div>
+                        <ScrollArea className="flex-1">
+                           <div className="p-4 space-y-1">
+                              {settingsSections.map((section) => {
+                                 const Icon = section.icon;
+                                 return (
+                                    <Button
+                                       key={section.id}
+                                       variant={
+                                          activeSection === section.id
+                                             ? "secondary"
+                                             : "ghost"
+                                       }
+                                       className={cn(
+                                          "w-full justify-start h-auto p-3",
+                                          activeSection === section.id &&
+                                             "bg-secondary"
+                                       )}
+                                       onClick={() =>
+                                          setActiveSection(section.id)
+                                       }
+                                    >
+                                       <div className="flex items-center gap-3">
+                                          <Icon className="h-4 w-4 flex-shrink-0" />
+                                          <div className="text-left min-w-0">
+                                             <div className="font-medium text-sm">
+                                                {section.title}
+                                             </div>
+                                             <div className="text-xs text-muted-foreground">
+                                                {section.description}
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </Button>
+                                 );
+                              })}
+                           </div>
+                        </ScrollArea>
+                     </div>
+
+                     {/* Main Content */}
+                     <div className="flex-1 flex flex-col min-w-0">
+                        <div className="p-4 sm:p-6 border-b border-border">
+                           <div className="flex items-center justify-between">
+                              <div className="min-w-0 flex-1">
+                                 <h2 className="text-xl sm:text-2xl font-semibold truncate">
+                                    {
+                                       settingsSections.find(
+                                          (s) => s.id === activeSection
+                                       )?.title
+                                    }
+                                 </h2>
+                                 <p className="text-muted-foreground text-sm hidden sm:block">
+                                    {
+                                       settingsSections.find(
+                                          (s) => s.id === activeSection
+                                       )?.description
+                                    }
+                                 </p>
+                              </div>
+                              <Button
+                                 variant="ghost"
+                                 size="sm"
+                                 onClick={onClose}
+                              >
+                                 <X className="h-4 w-4" />
+                              </Button>
+                           </div>
+                        </div>
+                        <ScrollArea className="flex-1">
+                           <div className="p-4 sm:p-6">
+                              {renderSectionContent()}
+                           </div>
+                        </ScrollArea>
+                     </div>
+                  </div>
                </div>
-            </div>
-         </DialogContent>
+            </DialogPrimitive.Content>
+         </DialogPortal>
       </Dialog>
    );
 }
