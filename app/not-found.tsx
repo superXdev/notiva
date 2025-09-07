@@ -10,25 +10,31 @@ import {
 } from "@/components/ui/card";
 import { Search, Home, FileText, HelpCircle } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
-import { GoBackButton, NotFoundSearch } from "@/components/not-found-interactive";
+import {
+   GoBackButton,
+   NotFoundSearch,
+} from "@/components/not-found-interactive";
 
 export const metadata: Metadata = {
    title: "404 - Page Not Found | Notiva",
-   description: "The page you're looking for doesn't exist. Explore Notiva's note-taking platform with markdown editing, AI enhancement, and publishing features.",
+   description:
+      "The page you're looking for doesn't exist. Explore Notiva's note-taking platform with markdown editing, AI enhancement, and publishing features.",
    robots: {
       index: false,
       follow: true,
    },
    openGraph: {
       title: "404 - Page Not Found | Notiva",
-      description: "The page you're looking for doesn't exist. Explore Notiva's note-taking platform instead.",
+      description:
+         "The page you're looking for doesn't exist. Explore Notiva's note-taking platform instead.",
       type: "website",
       siteName: "Notiva",
    },
    twitter: {
       card: "summary",
       title: "404 - Page Not Found | Notiva",
-      description: "The page you're looking for doesn't exist. Explore Notiva's note-taking platform instead.",
+      description:
+         "The page you're looking for doesn't exist. Explore Notiva's note-taking platform instead.",
    },
    alternates: {
       canonical: "/not-found",
@@ -66,18 +72,19 @@ export default function NotFound() {
                   <Logo width={40} height={40} />
                   <span className="text-3xl font-bold">Notiva</span>
                </div>
-               
+
                {/* 404 Number */}
                <div className="text-8xl font-bold text-muted-foreground/30 leading-none">
                   404
                </div>
-               
+
                <div className="space-y-2">
                   <h1 className="text-3xl font-semibold tracking-tight">
                      Page Not Found
                   </h1>
                   <p className="text-lg text-muted-foreground max-w-md mx-auto">
-                     The page you're looking for doesn't exist or has been moved to a different location.
+                     The page you're looking for doesn't exist or has been moved
+                     to a different location.
                   </p>
                </div>
             </div>
@@ -123,7 +130,10 @@ export default function NotFound() {
                </h2>
                <div className="grid gap-4 md:grid-cols-3">
                   {suggestions.map((suggestion) => (
-                     <Card key={suggestion.href} className="group hover:shadow-md transition-shadow cursor-pointer">
+                     <Card
+                        key={suggestion.href}
+                        className="group hover:shadow-md transition-shadow cursor-pointer"
+                     >
                         <Link href={suggestion.href}>
                            <CardHeader className="text-center pb-2">
                               <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -148,7 +158,10 @@ export default function NotFound() {
             <div className="text-center text-sm text-muted-foreground space-y-2">
                <p>
                   If you believe this is an error, please{" "}
-                  <Link href="/contact" className="underline hover:text-foreground">
+                  <Link
+                     href="/contact"
+                     className="underline hover:text-foreground"
+                  >
                      contact support
                   </Link>
                </p>
@@ -175,15 +188,22 @@ export default function NotFound() {
                      "@context": "https://schema.org",
                      "@type": "WebPage",
                      name: "404 - Page Not Found",
-                     description: "The requested page could not be found on Notiva.",
-                     url: typeof window !== 'undefined' ? window.location.href : '',
+                     description:
+                        "The requested page could not be found on Notiva.",
+                     url:
+                        typeof window !== "undefined"
+                           ? window.location.href
+                           : "",
                      mainEntity: {
                         "@type": "Organization",
                         name: "Notiva",
-                        description: "Modern note-taking platform with markdown editing and AI enhancement",
-                        url: process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.app"
-                     }
-                  })
+                        description:
+                           "Modern note-taking platform with markdown editing and AI enhancement",
+                        url:
+                           process.env.NEXT_PUBLIC_SITE_URL ||
+                           "https://notiva.net",
+                     },
+                  }),
                }}
             />
          </div>

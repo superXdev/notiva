@@ -9,6 +9,7 @@
 
 # production
 /build
+/.open-next
 
 # debug
 npm-debug.log*

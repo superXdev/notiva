@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +10,34 @@ import {
 } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+
+export const metadata: Metadata = {
+   title: "Privacy Policy | Notiva",
+   description:
+      "Learn how Notiva protects your privacy and handles your data. Our comprehensive privacy policy covers data collection, usage, and your rights.",
+   openGraph: {
+      title: "Privacy Policy | Notiva",
+      description:
+         "Learn how Notiva protects your privacy and handles your data. Our comprehensive privacy policy covers data collection, usage, and your rights.",
+      type: "website",
+      siteName: "Notiva",
+      images: [
+         {
+            url: "/og-login.png",
+            width: 1200,
+            height: 630,
+            alt: "Notiva - Privacy Policy",
+         },
+      ],
+   },
+   twitter: {
+      card: "summary_large_image",
+      title: "Privacy Policy | Notiva",
+      description:
+         "Learn how Notiva protects your privacy and handles your data. Our comprehensive privacy policy covers data collection, usage, and your rights.",
+      images: ["/og-login.png"],
+   },
+};
 
 export default function PrivacyPage() {
    return (
@@ -171,10 +200,10 @@ export default function PrivacyPage() {
                      If you have any questions about this Privacy Policy or our
                      data practices, please contact us at{" "}
                      <a
-                        href="mailto:privacy@notiva.app"
+                        href="mailto:privacy@notiva.net"
                         className="text-primary hover:underline"
                      >
-                        privacy@notiva.app
+                        privacy@notiva.net
                      </a>
                   </p>
                </CardContent>

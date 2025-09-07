@@ -61,7 +61,7 @@ export async function generateMetadata({
          description,
          type: "article",
          url: `${
-            process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.app"
+            process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.net"
          }/published/${id}`,
          siteName: "Notiva",
          locale: "en_US",
@@ -71,11 +71,7 @@ export async function generateMetadata({
          tags: note.labels || [],
          images: [
             {
-               url: `${
-                  process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.app"
-               }/api/og?title=${encodeURIComponent(
-                  note.title || "Untitled Note"
-               )}&description=${encodeURIComponent(description)}`,
+               url: "/og-login.png",
                width: 1200,
                height: 630,
                alt: note.title || "Untitled Note",
@@ -86,19 +82,13 @@ export async function generateMetadata({
          card: "summary_large_image",
          title: note.title || "Untitled Note",
          description,
-         images: [
-            `${
-               process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.app"
-            }/api/og?title=${encodeURIComponent(
-               note.title || "Untitled Note"
-            )}&description=${encodeURIComponent(description)}`,
-         ],
+         images: ["/og-login.png"],
          creator: "@notiva",
          site: "@notiva",
       },
       alternates: {
          canonical: `${
-            process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.app"
+            process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.net"
          }/published/${id}`,
       },
       robots: {
@@ -149,7 +139,7 @@ export default async function PublishedNotePage({
          logo: {
             "@type": "ImageObject",
             url: `${
-               process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.app"
+               process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.net"
             }/logo.png`,
          },
       },
@@ -158,7 +148,7 @@ export default async function PublishedNotePage({
       mainEntityOfPage: {
          "@type": "WebPage",
          "@id": `${
-            process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.app"
+            process.env.NEXT_PUBLIC_SITE_URL || "https://notiva.net"
          }/published/${id}`,
       },
       keywords: note.labels.join(", "),
@@ -351,9 +341,9 @@ export default async function PublishedNotePage({
                   <div className="pt-2 border-t border-border/50 mt-4">
                      <p className="text-xs">
                         Presented by{" "}
-                        <Link 
-                           href="https://lunos.tech" 
-                           target="_blank" 
+                        <Link
+                           href="https://lunos.tech"
+                           target="_blank"
                            rel="noopener noreferrer"
                            className="text-primary hover:underline"
                         >

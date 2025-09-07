@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +10,34 @@ import {
 } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+
+export const metadata: Metadata = {
+   title: "Terms of Service | Notiva",
+   description:
+      "Read Notiva's Terms of Service to understand your rights and responsibilities when using our markdown note-taking platform.",
+   openGraph: {
+      title: "Terms of Service | Notiva",
+      description:
+         "Read Notiva's Terms of Service to understand your rights and responsibilities when using our markdown note-taking platform.",
+      type: "website",
+      siteName: "Notiva",
+      images: [
+         {
+            url: "/og-login.png",
+            width: 1200,
+            height: 630,
+            alt: "Notiva - Terms of Service",
+         },
+      ],
+   },
+   twitter: {
+      card: "summary_large_image",
+      title: "Terms of Service | Notiva",
+      description:
+         "Read Notiva's Terms of Service to understand your rights and responsibilities when using our markdown note-taking platform.",
+      images: ["/og-login.png"],
+   },
+};
 
 export default function TermsPage() {
    return (
@@ -125,10 +154,10 @@ export default function TermsPage() {
                      If you have any questions about these Terms of Service,
                      please contact us at{" "}
                      <a
-                        href="mailto:support@notiva.app"
+                        href="mailto:support@notiva.net"
                         className="text-primary hover:underline"
                      >
-                        support@notiva.app
+                        support@notiva.net
                      </a>
                   </p>
                </CardContent>

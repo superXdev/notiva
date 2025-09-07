@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +10,29 @@ import {
 } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+
+export const metadata: Metadata = {
+   title: "Authentication Error | Notiva",
+   description:
+      "There was an error with your authentication. Please try signing in again or contact support if the problem persists.",
+   robots: {
+      index: false,
+      follow: true,
+   },
+   openGraph: {
+      title: "Authentication Error | Notiva",
+      description:
+         "There was an error with your authentication. Please try signing in again.",
+      type: "website",
+      siteName: "Notiva",
+   },
+   twitter: {
+      card: "summary",
+      title: "Authentication Error | Notiva",
+      description:
+         "There was an error with your authentication. Please try signing in again.",
+   },
+};
 
 export default function ErrorPage() {
    return (
