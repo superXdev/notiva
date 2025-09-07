@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { NotesProvider } from "@/contexts/notes-context";
+import { MobileNavigationProvider } from "@/contexts/mobile-navigation-context";
 
 export const metadata: Metadata = {
    title: "Notiva - Your Personal Note-Taking Platform",
@@ -23,7 +24,11 @@ export default function RootLayout({
             className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}
          >
             <ThemeProvider>
-               <NotesProvider>{children}</NotesProvider>
+               <NotesProvider>
+                  <MobileNavigationProvider>
+                     {children}
+                  </MobileNavigationProvider>
+               </NotesProvider>
             </ThemeProvider>
          </body>
       </html>

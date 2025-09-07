@@ -189,17 +189,19 @@ export function SearchModal({
             <DialogPrimitive.Content
                className={cn(
                   "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-[55] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
-                  "w-[90vw] max-w-2xl max-h-[80vh] p-0"
+                  "w-[95vw] max-w-2xl max-h-[90vh] md:max-h-[80vh] p-0"
                )}
                onKeyDown={handleKeyDown}
             >
-               <DialogHeader className="p-6 pb-4">
+               <DialogHeader className="p-4 md:p-6 pb-3 md:pb-4">
                   <DialogTitle className="flex items-center justify-between">
                      <div className="flex items-center gap-2">
-                        <Search className="h-5 w-5" />
-                        Search Notes
+                        <Search className="h-4 w-4 md:h-5 md:w-5" />
+                        <span className="text-base md:text-lg">
+                           Search Notes
+                        </span>
                      </div>
-                     <div className="text-xs text-muted-foreground">
+                     <div className="text-xs text-muted-foreground hidden sm:block">
                         Press{" "}
                         <kbd className="px-1.5 py-0.5 text-xs bg-muted rounded">
                            ⌘K
@@ -209,7 +211,7 @@ export function SearchModal({
                   </DialogTitle>
                </DialogHeader>
 
-               <div className="px-6 pb-4">
+               <div className="px-4 md:px-6 pb-3 md:pb-4">
                   <div className="relative">
                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                      <Input
@@ -217,7 +219,7 @@ export function SearchModal({
                         placeholder="Search note titles..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 pr-10"
+                        className="pl-9 pr-10 text-sm md:text-base"
                         onKeyDown={handleKeyDown}
                      />
                      {searchQuery && (
@@ -233,11 +235,11 @@ export function SearchModal({
                   </div>
                </div>
 
-               <div className="px-6 pb-6">
+               <div className="px-4 md:px-6 pb-4 md:pb-6">
                   {isLoadingSearchData ? (
                      <div className="border rounded-lg">
-                        <div className="p-8 text-center text-muted-foreground">
-                           <div className="animate-spin h-6 w-6 border-2 border-muted-foreground border-t-transparent rounded-full mx-auto mb-2"></div>
+                        <div className="p-6 md:p-8 text-center text-muted-foreground">
+                           <div className="animate-spin h-5 w-5 md:h-6 md:w-6 border-2 border-muted-foreground border-t-transparent rounded-full mx-auto mb-2"></div>
                            <p className="text-sm">Loading all notes...</p>
                         </div>
                      </div>
@@ -248,14 +250,14 @@ export function SearchModal({
                               Recent notes
                            </div>
                         )}
-                        <ScrollArea className="max-h-[300px]">
+                        <ScrollArea className="max-h-[350px] md:max-h-[300px]">
                            {searchResults.length > 0 ? (
-                              <div className="p-2" ref={resultsRef}>
+                              <div className="p-1 md:p-2" ref={resultsRef}>
                                  {searchResults.map((result, index) => (
                                     <div
                                        key={result.item.id}
                                        className={cn(
-                                          "p-3 rounded-md cursor-pointer transition-colors",
+                                          "p-2 md:p-3 rounded-md cursor-pointer transition-colors",
                                           "hover:bg-accent",
                                           selectedIndex === index && "bg-accent"
                                        )}
@@ -288,17 +290,25 @@ export function SearchModal({
                                           </div>
                                        )}
 
-                                       <div className="flex items-start justify-between">
-                                          <div className="flex-1 min-w-0">
-                                             <h4 className="font-medium text-sm mb-1 truncate">
+                                       <div className="space-y-1">
+                                          <div className="flex items-start justify-between gap-2">
+                                             <h4 className="font-medium text-sm md:text-base truncate flex-1 min-w-0">
                                                 {result.item.title}
                                              </h4>
+                                             <div className="text-xs text-muted-foreground flex-shrink-0 hidden sm:block">
+                                                {new Date(
+                                                   result.item.updatedAt
+                                                ).toLocaleDateString()}
+                                             </div>
+                                          </div>
 
+                                          {/* Labels and Date Row */}
+                                          <div className="flex items-center justify-between gap-2">
                                              {/* Labels */}
-                                             {result.item.labels.length > 0 && (
-                                                <div className="flex flex-wrap gap-1 mt-1">
+                                             {result.item.labels.length > 0 ? (
+                                                <div className="flex flex-wrap gap-1 flex-1 min-w-0">
                                                    {result.item.labels
-                                                      .slice(0, 3)
+                                                      .slice(0, 2)
                                                       .map((labelName) => {
                                                          const label =
                                                             labels.find(
@@ -327,32 +337,35 @@ export function SearchModal({
                                                          );
                                                       })}
                                                    {result.item.labels.length >
-                                                      3 && (
+                                                      2 && (
                                                       <Badge
                                                          variant="secondary"
                                                          className="text-xs px-1.5 py-0.5"
                                                       >
                                                          +
                                                          {result.item.labels
-                                                            .length - 3}
+                                                            .length - 2}
                                                       </Badge>
                                                    )}
                                                 </div>
+                                             ) : (
+                                                <div className="flex-1" />
                                              )}
-                                          </div>
 
-                                          <div className="text-xs text-muted-foreground ml-2 flex-shrink-0">
-                                             {new Date(
-                                                result.item.updatedAt
-                                             ).toLocaleDateString()}
+                                             {/* Date on mobile */}
+                                             <div className="text-xs text-muted-foreground flex-shrink-0 sm:hidden">
+                                                {new Date(
+                                                   result.item.updatedAt
+                                                ).toLocaleDateString()}
+                                             </div>
                                           </div>
                                        </div>
                                     </div>
                                  ))}
                               </div>
                            ) : (
-                              <div className="p-8 text-center text-muted-foreground">
-                                 <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                              <div className="p-6 md:p-8 text-center text-muted-foreground">
+                                 <FileText className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 opacity-50" />
                                  <p className="text-sm">No notes found</p>
                                  <p className="text-xs mt-1">
                                     Try adjusting your search terms
@@ -363,8 +376,8 @@ export function SearchModal({
                      </div>
                   ) : (
                      !isLoadingSearchData && (
-                        <div className="p-8 text-center text-muted-foreground">
-                           <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <div className="p-6 md:p-8 text-center text-muted-foreground">
+                           <FileText className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 opacity-50" />
                            <p className="text-sm">No notes available</p>
                            <p className="text-xs mt-1">
                               Create your first note to get started

@@ -375,14 +375,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             >
                <div className="flex flex-col h-full">
                   {/* Mobile Navigation Tabs */}
-                  <div className="sm:hidden border-b border-border bg-muted/30 overflow-hidden">
+                  <div className="sm:hidden border-b border-border bg-muted/30 flex-shrink-0">
                      <div className="p-4 pb-0">
                         <DialogTitle className="text-xl font-semibold mb-3">
                            Settings
                         </DialogTitle>
                      </div>
-                     <div className="overflow-x-auto pb-3">
-                        <div className="flex gap-2 px-4">
+                     <div className="overflow-x-auto scrollbar-hide">
+                        <div className="flex gap-2 px-4 pb-3 min-w-max">
                            {settingsSections.map((section) => {
                               const Icon = section.icon;
                               return (
@@ -395,16 +395,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                     }
                                     size="sm"
                                     className={cn(
-                                       "flex-shrink-0 gap-2 h-8 text-xs px-2",
+                                       "flex-shrink-0 h-8 w-8 p-0",
                                        activeSection === section.id &&
                                           "bg-secondary shadow-sm"
                                     )}
                                     onClick={() => setActiveSection(section.id)}
+                                    title={section.title}
                                  >
-                                    <Icon className="h-3.5 w-3.5" />
-                                    <span className="whitespace-nowrap">
-                                       {section.title}
-                                    </span>
+                                    <Icon className="h-4 w-4" />
                                  </Button>
                               );
                            })}
@@ -460,8 +458,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                      </div>
 
                      {/* Main Content */}
-                     <div className="flex-1 flex flex-col min-w-0">
-                        <div className="p-4 sm:p-6 border-b border-border">
+                     <div className="flex-1 flex flex-col min-w-0 min-h-0">
+                        <div className="p-4 sm:p-6 border-b border-border flex-shrink-0">
                            <div className="flex items-center justify-between">
                               <div className="min-w-0 flex-1">
                                  <h2 className="text-xl sm:text-2xl font-semibold truncate">
@@ -488,7 +486,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                               </Button>
                            </div>
                         </div>
-                        <ScrollArea className="flex-1">
+                        <ScrollArea className="flex-1 min-h-0">
                            <div className="p-4 sm:p-6">
                               {renderSectionContent()}
                            </div>

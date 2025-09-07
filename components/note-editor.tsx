@@ -301,12 +301,12 @@ export function NoteEditor() {
 
    if (!selectedNote) {
       return (
-         <div className="flex-1 flex flex-col bg-background">
+         <div className="flex-1 flex flex-col bg-background h-full">
             <div className="md:hidden border-b border-border p-3 flex items-center justify-center">
                <h1 className="text-lg font-semibold">Notes</h1>
             </div>
 
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center min-h-0">
                <div className="text-center px-4">
                   <Edit className="h-10 w-10 md:h-12 md:w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
                   <h3 className="text-lg font-medium mb-2">No note selected</h3>
@@ -320,8 +320,8 @@ export function NoteEditor() {
    }
 
    return (
-      <div className="flex-1 flex flex-col bg-background min-w-0 overflow-hidden">
-         <div className="border-b border-border">
+      <div className="flex-1 flex flex-col bg-background min-w-0 h-full">
+         <div className="border-b border-border flex-shrink-0">
             {/* Mobile Header */}
             <div className="md:hidden p-3">
                <div className="flex items-center justify-between mb-2">
@@ -557,14 +557,14 @@ export function NoteEditor() {
          </div>
 
          {/* Editor */}
-         <div className="flex-1 overflow-hidden min-w-0">
+         <div className="flex-1 min-h-0 overflow-hidden">
             <Tabs
                defaultValue="edit"
                value={currentTab}
                onValueChange={setCurrentTab}
                className="h-full flex flex-col"
             >
-               <div className="mx-3 md:mx-4 mt-3 md:mt-4 flex items-center justify-between">
+               <div className="mx-3 md:mx-4 mt-3 md:mt-4 flex items-center justify-between flex-shrink-0">
                   <TabsList className="w-fit">
                      <TabsTrigger value="edit" className="text-sm">
                         <Edit className="h-4 w-4 mr-1" />
@@ -601,9 +601,9 @@ export function NoteEditor() {
 
                <TabsContent
                   value="edit"
-                  className="flex-1 m-0 p-3 md:p-4 overflow-hidden min-w-0"
+                  className="flex-1 m-0 p-3 md:p-4 flex flex-col min-h-0"
                >
-                  <div className="md:hidden mb-3">
+                  <div className="md:hidden mb-3 flex-shrink-0">
                      <Input
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
@@ -612,17 +612,16 @@ export function NoteEditor() {
                      />
                   </div>
 
-                  <div className="h-full overflow-hidden min-w-0">
+                  <div className="flex-1 min-h-0">
                      <Textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="Start writing your note in Markdown..."
-                        className="w-full h-full resize-none border-none bg-transparent focus-visible:ring-0 font-mono text-sm leading-relaxed overflow-y-auto"
+                        className="w-full h-full resize-none border-none bg-transparent focus-visible:ring-0 font-mono text-sm leading-relaxed"
                         style={{
                            wordWrap: "break-word",
                            overflowWrap: "break-word",
                            whiteSpace: "pre-wrap",
-                           overflowX: "hidden",
                         }}
                      />
                   </div>
@@ -917,7 +916,7 @@ export function NoteEditor() {
          </div>
 
          {/* Status Bar */}
-         <div className="border-t border-border px-3 md:px-4 py-2 text-xs text-muted-foreground flex justify-between items-center">
+         <div className="border-t border-border px-3 md:px-4 py-2 text-xs text-muted-foreground flex justify-between items-center flex-shrink-0">
             <div className="flex items-center space-x-4">
                <span>{hasUnsavedChanges ? "Unsaved changes" : "Saved"}</span>
                <span className="hidden sm:inline">
