@@ -26,6 +26,7 @@ import { Logo } from "@/components/ui/logo";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { SearchModal } from "@/components/search-modal";
+import { SettingsModal } from "@/components/settings-modal";
 import { useState, useEffect } from "react";
 
 interface NavigationHeaderProps {
@@ -34,6 +35,7 @@ interface NavigationHeaderProps {
 
 export function NavigationHeader({ user }: NavigationHeaderProps) {
    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
    // Get user initials for avatar
    const getUserInitials = (email: string) => {
@@ -113,9 +115,6 @@ export function NavigationHeader({ user }: NavigationHeaderProps) {
                               {getUserInitials(user.email || "")}
                            </AvatarFallback>
                         </Avatar>
-                        <span className="hidden sm:block text-sm">
-                           {user.email}
-                        </span>
                         <ChevronDown className="h-4 w-4" />
                      </Button>
                   </DropdownMenuTrigger>
@@ -132,14 +131,12 @@ export function NavigationHeader({ user }: NavigationHeaderProps) {
                         </div>
                      </DropdownMenuItem>
                      <DropdownMenuSeparator />
-                     <DropdownMenuItem asChild>
-                        <Link
-                           href="/settings"
-                           className="flex items-center w-full"
-                        >
-                           <Settings className="h-4 w-4 mr-2" />
-                           Settings
-                        </Link>
+                     <DropdownMenuItem
+                        onClick={() => setIsSettingsModalOpen(true)}
+                        className="flex items-center w-full"
+                     >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Settings
                      </DropdownMenuItem>
                      <DropdownMenuItem className="sm:hidden" asChild>
                         <Link href="/help" className="flex items-center w-full">
@@ -171,6 +168,12 @@ export function NavigationHeader({ user }: NavigationHeaderProps) {
          <SearchModal
             isOpen={isSearchModalOpen}
             onClose={() => setIsSearchModalOpen(false)}
+         />
+
+         {/* Settings Modal */}
+         <SettingsModal
+            isOpen={isSettingsModalOpen}
+            onClose={() => setIsSettingsModalOpen(false)}
          />
       </header>
    );
