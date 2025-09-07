@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -52,6 +52,7 @@ import {
    LabelSkeleton,
 } from "@/components/ui/skeleton";
 import { exportToPDF } from "@/lib/pdf-export";
+import { SearchModal } from "./search-modal";
 
 interface SidebarProps {
    onNoteSelect?: () => void;
@@ -84,7 +85,7 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
       refreshNoteCounts,
    } = useNotes();
 
-   const [searchQuery, setSearchQuery] = useState("");
+   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
    const [newFolderName, setNewFolderName] = useState("");
    const [newLabelName, setNewLabelName] = useState("");
    const [newLabelColor, setNewLabelColor] = useState("#3b82f6");
@@ -96,6 +97,19 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
       name: string;
    } | null>(null);
    const [renameFolderName, setRenameFolderName] = useState("");
+
+   // Global keyboard shortcut for search (Cmd/Ctrl + K)
+   useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+         if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+            e.preventDefault();
+            setIsSearchModalOpen(true);
+         }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
+   }, []);
 
    const handleCreateNote = async () => {
       try {
@@ -165,11 +179,7 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
       }
    };
 
-   const searchedNotes = filteredNotes.filter(
-      (note) =>
-         note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         note.content.toLowerCase().includes(searchQuery.toLowerCase())
-   );
+   // Remove the old search filtering since we're using the modal now
 
    const getFolderPath = (folderId?: string) => {
       if (!folderId) return [];
@@ -210,10 +220,13 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                <Input
                   placeholder="Search notes..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 text-sm"
+                  className="pl-9 pr-20 text-sm cursor-pointer"
+                  onClick={() => setIsSearchModalOpen(true)}
+                  readOnly
                />
+               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">
+                  ⌘K
+               </div>
             </div>
          </div>
 
@@ -562,7 +575,7 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                         ))
                      ) : (
                         <>
-                           {searchedNotes.map((note) => (
+                           {filteredNotes.map((note) => (
                               <ContextMenu key={note.id}>
                                  <ContextMenuTrigger asChild>
                                     <div
@@ -662,15 +675,10 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                               </ContextMenu>
                            ))}
 
-                           {searchedNotes.length === 0 && (
+                           {filteredNotes.length === 0 && (
                               <div className="text-center py-6 md:py-8 text-muted-foreground">
                                  <FileText className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 opacity-50" />
                                  <p className="text-sm">No notes found</p>
-                                 {searchQuery && (
-                                    <p className="text-xs mt-1">
-                                       Try adjusting your search
-                                    </p>
-                                 )}
                               </div>
                            )}
                         </>
@@ -679,6 +687,13 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                </div>
             </div>
          </ScrollArea>
+
+         {/* Search Modal */}
+         <SearchModal
+            isOpen={isSearchModalOpen}
+            onClose={() => setIsSearchModalOpen(false)}
+            onNoteSelect={onNoteSelect}
+         />
       </div>
    );
 }

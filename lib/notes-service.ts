@@ -88,6 +88,32 @@ export class NotesService {
       return transformNote(note);
    }
 
+   // Get all note titles for search purposes (lightweight query)
+   static async getAllNoteTitles(): Promise<
+      Array<{
+         id: string;
+         title: string;
+         folderId?: string;
+         labels: string[];
+         updatedAt: string;
+      }>
+   > {
+      const { data: notes, error } = await supabase
+         .from("notes")
+         .select("id, title, folder_id, labels, updated_at")
+         .order("updated_at", { ascending: false });
+
+      if (error) throw error;
+
+      return (notes || []).map((note: any) => ({
+         id: note.id,
+         title: note.title || "",
+         folderId: note.folder_id || undefined,
+         labels: note.labels || [],
+         updatedAt: note.updated_at,
+      }));
+   }
+
    static async createNote(
       title: string,
       content = "",
