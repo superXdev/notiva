@@ -12,8 +12,6 @@
 
 Notiva is a modern markdown note-taking platform that transforms how you capture, organize, and share your ideas. Built with Next.js 15 and Supabase, it combines the simplicity of markdown editing with hierarchical organization, content enhancement tools, and professional publishing capabilities.
 
-Whether you're documenting projects, writing articles, or managing knowledge bases, Notiva provides a seamless experience with real-time sync, advanced search, PDF export, and the ability to publish notes as SEO-optimized web pages. With features like nested folders with color-coded labels, content improvement tools, and enterprise-grade security, Notiva bridges the gap between personal note-taking and professional content creation.
-
 ## ✨ Features
 
 ### **Core Features**
