@@ -27,6 +27,17 @@ export interface Label {
    userId: string;
 }
 
+export interface UsageLimits {
+   id: string;
+   userId: string;
+   notesCount: number;
+   foldersCount: number;
+   labelsCount: number;
+   aiEnhancementsUsed: number;
+   createdAt: string;
+   updatedAt: string;
+}
+
 export interface AppState {
    notes: Note[];
    folders: Folder[];
@@ -122,6 +133,38 @@ export interface Database {
                color?: string;
                created_at?: string;
                user_id?: string;
+            };
+         };
+         usage_limits: {
+            Row: {
+               id: string;
+               user_id: string;
+               notes_count: number;
+               folders_count: number;
+               labels_count: number;
+               ai_enhancements_used: number;
+               created_at: string;
+               updated_at: string;
+            };
+            Insert: {
+               id?: string;
+               user_id: string;
+               notes_count?: number;
+               folders_count?: number;
+               labels_count?: number;
+               ai_enhancements_used?: number;
+               created_at?: string;
+               updated_at?: string;
+            };
+            Update: {
+               id?: string;
+               user_id?: string;
+               notes_count?: number;
+               folders_count?: number;
+               labels_count?: number;
+               ai_enhancements_used?: number;
+               created_at?: string;
+               updated_at?: string;
             };
          };
       };

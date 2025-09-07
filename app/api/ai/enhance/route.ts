@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { createClient } from "@/utils/supabase/server";
 
 const openai = new OpenAI({
    apiKey: process.env.LUNOS_API_KEY,
@@ -24,6 +25,20 @@ export async function POST(request: NextRequest) {
          return NextResponse.json(
             { error: "Lunos API key not configured" },
             { status: 500 }
+         );
+      }
+
+      // Get authenticated user
+      const supabase = await createClient();
+      const {
+         data: { user },
+         error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+         return NextResponse.json(
+            { error: "Authentication required" },
+            { status: 401 }
          );
       }
 
@@ -108,6 +123,24 @@ Return only the formatted text without any explanations.`;
             { error: "Failed to generate enhanced content" },
             { status: 500 }
          );
+      }
+
+      // Track AI enhancement usage
+      try {
+         const { error: usageError } = await supabase.rpc(
+            "increment_ai_enhancement_usage",
+            {
+               user_uuid: user.id,
+            }
+         );
+
+         if (usageError) {
+            console.error("Failed to track AI enhancement usage:", usageError);
+            // Don't fail the request if usage tracking fails
+         }
+      } catch (trackingError) {
+         console.error("Error tracking AI enhancement usage:", trackingError);
+         // Don't fail the request if usage tracking fails
       }
 
       return NextResponse.json({ enhancedContent });

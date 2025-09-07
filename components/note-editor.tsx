@@ -24,6 +24,8 @@ import {
    Globe,
    Link,
    Undo2,
+   Copy,
+   Check,
 } from "lucide-react";
 import { useNotes } from "@/contexts/notes-context";
 import { useToast } from "@/hooks/use-toast";
@@ -59,6 +61,7 @@ export function NoteEditor() {
    const [currentTab, setCurrentTab] = useState("edit");
    const [contentHistory, setContentHistory] = useState<string[]>([]);
    const [historyIndex, setHistoryIndex] = useState(-1);
+   const [isCopied, setIsCopied] = useState(false);
 
    useEffect(() => {
       if (selectedNote) {
@@ -235,6 +238,28 @@ export function NoteEditor() {
       addToHistory(content);
       setContent(enhancedContent);
       setHasUnsavedChanges(true);
+   };
+
+   const handleCopyContent = async () => {
+      try {
+         await navigator.clipboard.writeText(content);
+         setIsCopied(true);
+         toast({
+            title: "Content copied!",
+            description: "The note content has been copied to your clipboard.",
+         });
+
+         // Reset the copied state after 2 seconds
+         setTimeout(() => {
+            setIsCopied(false);
+         }, 2000);
+      } catch (error) {
+         toast({
+            title: "Failed to copy content",
+            description: "Please try again or copy the content manually.",
+            variant: "destructive",
+         });
+      }
    };
 
    const addToHistory = (currentContent: string) => {
@@ -586,6 +611,24 @@ export function NoteEditor() {
                      >
                         <Undo2 className="h-4 w-4" />
                         <span className="hidden sm:inline">Undo</span>
+                     </Button>
+                     <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleCopyContent}
+                        disabled={!content.trim()}
+                        className={`gap-2 transition-colors ${
+                           isCopied ? "text-green-600 dark:text-green-400" : ""
+                        }`}
+                     >
+                        {isCopied ? (
+                           <Check className="h-4 w-4" />
+                        ) : (
+                           <Copy className="h-4 w-4" />
+                        )}
+                        <span className="hidden sm:inline">
+                           {isCopied ? "Copied!" : "Copy"}
+                        </span>
                      </Button>
                      <AIEnhancementButton
                         content={content}
