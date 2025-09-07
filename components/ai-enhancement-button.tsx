@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
    DropdownMenu,
@@ -9,7 +9,7 @@ import {
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, AlertCircle } from "lucide-react";
 
 interface AIEnhancementButtonProps {
    content: string;
@@ -46,13 +46,45 @@ export function AIEnhancementButton({
    disabled = false,
 }: AIEnhancementButtonProps) {
    const [isEnhancing, setIsEnhancing] = useState(false);
+   const [isApiKeyConfigured, setIsApiKeyConfigured] = useState<boolean | null>(
+      null
+   );
+   const [isCheckingConfig, setIsCheckingConfig] = useState(true);
    const { toast } = useToast();
+
+   // Check if Lunos API key is configured on component mount
+   useEffect(() => {
+      const checkApiKeyConfig = async () => {
+         try {
+            const response = await fetch("/api/ai/config");
+            const data = await response.json();
+            setIsApiKeyConfigured(data.configured);
+         } catch (error) {
+            console.error("Failed to check API key configuration:", error);
+            setIsApiKeyConfigured(false);
+         } finally {
+            setIsCheckingConfig(false);
+         }
+      };
+
+      checkApiKeyConfig();
+   }, []);
 
    const handleEnhance = async (enhancementType: string) => {
       if (!content.trim()) {
          toast({
             title: "No content to enhance",
             description: "Please add some content to your note first.",
+            variant: "destructive",
+         });
+         return;
+      }
+
+      if (!isApiKeyConfigured) {
+         toast({
+            title: "AI Enhancement Unavailable",
+            description:
+               "Lunos API key is not configured. Please set the LUNOS_API_KEY environment variable.",
             variant: "destructive",
          });
          return;
@@ -98,6 +130,37 @@ export function AIEnhancementButton({
          setIsEnhancing(false);
       }
    };
+
+   // Show loading state while checking configuration
+   if (isCheckingConfig) {
+      return (
+         <Button
+            variant="default"
+            size="sm"
+            disabled
+            className="gap-2 bg-gray-400 text-white border-gray-400"
+         >
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading...
+         </Button>
+      );
+   }
+
+   // Show disabled button with warning if API key is not configured
+   if (!isApiKeyConfigured) {
+      return (
+         <Button
+            variant="default"
+            size="sm"
+            disabled
+            className="gap-2 bg-gray-400 text-white border-gray-400"
+            title="Lunos API key not configured. Please set LUNOS_API_KEY environment variable."
+         >
+            <AlertCircle className="h-4 w-4" />
+            AI Enhance
+         </Button>
+      );
+   }
 
    return (
       <DropdownMenu>

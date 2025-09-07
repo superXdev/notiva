@@ -14,11 +14,33 @@ Notiva is a modern markdown note-taking platform that transforms how you capture
 
 Whether you're documenting projects, writing articles, or managing knowledge bases, Notiva provides a seamless experience with real-time sync, advanced search, PDF export, and the ability to publish notes as SEO-optimized web pages. With features like nested folders with color-coded labels, content improvement tools, and enterprise-grade security, Notiva bridges the gap between personal note-taking and professional content creation.
 
-## Quick Start
+## ✨ Features
+
+### **Core Features**
+
+-  **📝 Markdown Note-Taking** - Write and edit notes with full markdown support
+-  **📁 Hierarchical Organization** - Create nested folders with color-coded labels
+-  **🔍 Advanced Search** - Find notes instantly with powerful search capabilities
+-  **📄 PDF Export** - Export your notes as professional PDF documents
+-  **🌐 Publish & Share** - Publish notes as SEO-optimized web pages
+-  **🤖 AI Enhancement** - Get intelligent suggestions to improve your content
+-  **🌙 Dark/Light Mode** - Beautiful themes that adapt to your preference
+-  **📱 Mobile-First Design** - Seamless experience across all your devices
+
+### **Upcoming Features**
+
+-  **📥 Import Documents** - Import markdown files and various document types (PDF, Word, etc.)
+-  **🔍 Semantic Search** - Intelligent note discovery and content search
+-  **🔌 REST API** - Third-party integrations and automation
+-  **☁️ Google Drive Sync** - Automatic backup and cross-platform sync
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
--  Node.js (v20 or higher) 
+-  Node.js (v20 or higher)
 -  pnpm
 -  Supabase account
 
@@ -49,6 +71,8 @@ Whether you're documenting projects, writing articles, or managing knowledge bas
    LUNOS_API_KEY=your_lunos_api_key
    ```
 
+   > **Note**: The AI Enhancement feature requires a valid Lunos API key. Without it, the AI Enhance button will be disabled. You can get your API key from the [Lunos dashboard](https://lunos.tech/dashboard/api-keys).
+
 4. **Set up database tables**
 
    -  In Supabase dashboard: Go to SQL Editor
@@ -72,33 +96,16 @@ Whether you're documenting projects, writing articles, or managing knowledge bas
    pnpm dev
    ```
 
-## Features
+## 🛠️ Tech Stack
 
--  ✅ User authentication (login/register)
--  ✅ Google OAuth sign-in
--  ✅ Protected routes
--  ✅ Dark/light theme
--  ✅ Responsive design
--  ✅ Server-side rendering
--  ✅ AI-powered note enhancement
--  ✅ Client-side CRUD operations with Supabase RLS
+-  **🎨 Frontend**: Next.js 15, React, TypeScript
+-  **💅 Styling**: Tailwind CSS, shadcn/ui
+-  **🔐 Authentication**: Supabase Auth
+-  **🗄️ Database**: Supabase PostgreSQL with Row Level Security (RLS)
+-  **🤖 AI**: Lunos AI
+-  **📦 Package Manager**: pnpm
 
-### Upcoming Features
-
--  🔄 Semantic search for intelligent note discovery
--  🔄 REST API for third-party integrations
--  🔄 Google Drive backup and sync
-
-## Tech Stack
-
--  **Frontend**: Next.js 15, React, TypeScript
--  **Styling**: Tailwind CSS, shadcn/ui
--  **Authentication**: Supabase Auth
--  **Database**: Supabase PostgreSQL with Row Level Security (RLS)
--  **AI**: Lunos AI
--  **Package Manager**: pnpm
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 app/
@@ -109,7 +116,7 @@ app/
 └── utils/supabase/ # Supabase configuration
 ```
 
-## Development
+## 💻 Development
 
 ```bash
 # Install dependencies
@@ -125,24 +132,30 @@ pnpm build
 pnpm start
 ```
 
-## Docker Deployment
+## 🐳 Docker Deployment
 
 ### Quick Docker Setup
 
 1. **Create environment file**
+
    ```bash
    cp .env.production .env.local
    ```
-   
+
    Edit `.env.local` with your values:
+
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
    NEXT_PUBLIC_SITE_URL=https://your-domain.com
+   # Get your API key from: https://lunos.tech/dashboard/api-keys
    LUNOS_API_KEY=your_lunos_api_key
    ```
 
+   > **Note**: The AI Enhancement feature requires a valid Lunos API key. Without it, the AI Enhance button will be disabled. You can get your API key from the [Lunos dashboard](https://lunos.tech/dashboard/api-keys).
+
 2. **Deploy with Docker Compose**
+
    ```bash
    docker-compose up -d
    ```
@@ -175,17 +188,17 @@ docker-compose down
 
 ### Requirements
 
-- Docker & Docker Compose
-- Configured Supabase project
-- Domain name (recommended for production)
+-  Docker & Docker Compose
+-  Configured Supabase project
+-  Domain name (recommended for production)
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
 4. Submit a pull request
 
-## License
+## 📄 License
 
 GNU GPLv3 License - see LICENSE file for details.
