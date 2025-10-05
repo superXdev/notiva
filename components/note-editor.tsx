@@ -125,8 +125,19 @@ export function NoteEditor() {
       if (selectedNote) {
          try {
             await deleteNote(selectedNote.id);
+            toast({
+               title: "Note deleted",
+               description: `"${selectedNote.title}" has been deleted successfully.`,
+               variant: "success",
+            });
          } catch (error) {
             console.error("Failed to delete note:", error);
+            toast({
+               title: "Delete failed",
+               description:
+                  "There was an error deleting the note. Please try again.",
+               variant: "destructive",
+            });
          }
       }
    };
@@ -166,6 +177,7 @@ export function NoteEditor() {
             description: selectedNote.published
                ? "Your note is no longer publicly accessible."
                : "Your note is now publicly accessible.",
+            variant: "success",
          });
       } catch (error) {
          console.error("Failed to publish note:", error);
@@ -247,6 +259,7 @@ export function NoteEditor() {
          toast({
             title: "Content copied!",
             description: "The note content has been copied to your clipboard.",
+            variant: "success",
          });
 
          // Reset the copied state after 2 seconds
@@ -478,6 +491,7 @@ export function NoteEditor() {
                                              title: "Link copied!",
                                              description:
                                                 "The published note link has been copied to your clipboard.",
+                                             variant: "success",
                                           });
                                        } catch (error) {
                                           toast({
@@ -1003,6 +1017,7 @@ export function NoteEditor() {
                                        title: "Link copied!",
                                        description:
                                           "The published note link has been copied to your clipboard.",
+                                       variant: "success",
                                     });
                                  } catch (error) {
                                     toast({

@@ -10,13 +10,6 @@ import {
    DialogPortal,
 } from "@/components/ui/dialog";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import {
-   Card,
-   CardContent,
-   CardDescription,
-   CardHeader,
-   CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,9 +45,9 @@ type SettingsSection = "api" | "backup" | "appearance";
 const settingsSections = [
    {
       id: "api" as SettingsSection,
-      title: "API Keys",
+      title: "MCP Settings",
       icon: Key,
-      description: "Manage your API keys",
+      description: "Configure MCP connection settings",
    },
    {
       id: "backup" as SettingsSection,
@@ -72,41 +65,39 @@ const settingsSections = [
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
    const [activeSection, setActiveSection] = useState<SettingsSection>("api");
-   const [showApiKey, setShowApiKey] = useState(false);
-   const [apiKey, setApiKey] = useState("nt_..."); // Placeholder
+   const [showMcpKey, setShowMcpKey] = useState(false);
+   const [mcpKey, setMcpKey] = useState(""); // MCP key placeholder
    const [isLoading, setIsLoading] = useState(false);
    const [lastBackup, setLastBackup] = useState<string | null>(null);
    const [copied, setCopied] = useState(false);
    const { toast } = useToast();
 
-   const handleCopyApiKey = async () => {
+   const handleCopyMcpKey = async () => {
       try {
-         await navigator.clipboard.writeText(apiKey);
+         await navigator.clipboard.writeText(mcpKey);
          setCopied(true);
          toast({
-            title: "API Key copied",
-            description: "Your API key has been copied to clipboard.",
+            title: "MCP Key copied",
+            description: "Your MCP key has been copied to clipboard.",
          });
          setTimeout(() => setCopied(false), 2000);
       } catch (err) {
          toast({
             title: "Failed to copy",
-            description: "Could not copy API key to clipboard.",
+            description: "Could not copy MCP key to clipboard.",
             variant: "destructive",
          });
       }
    };
 
-   const handleRegenerateApiKey = () => {
+   const handleSaveMcpKey = () => {
       setIsLoading(true);
-      // Simulate API call
+      // Simulate save operation
       setTimeout(() => {
-         setApiKey("nt_" + Math.random().toString(36).substring(2, 15));
          setIsLoading(false);
          toast({
-            title: "API Key regenerated",
-            description:
-               "Your Notes API key has been successfully regenerated.",
+            title: "MCP Key saved",
+            description: "Your MCP key has been successfully saved.",
          });
       }, 1000);
    };
@@ -141,28 +132,29 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       switch (activeSection) {
          case "api":
             return (
-               <div className="space-y-6">
-                  <Card>
-                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
+               <div className="space-y-6 p-4">
+                  <div className="space-y-4">
+                     <div className="space-y-2">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
                            <Key className="h-5 w-5" />
-                           API Key Management
-                        </CardTitle>
-                        <CardDescription>
-                           Manage your API key for accessing the Notes API
-                        </CardDescription>
-                     </CardHeader>
-                     <CardContent className="space-y-4">
+                           MCP Configuration
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                           Configure your MCP (Model Context Protocol)
+                           connection settings
+                        </p>
+                     </div>
+                     <div className="space-y-4">
                         <div className="space-y-2">
-                           <Label htmlFor="api-key">Notes API Key</Label>
+                           <Label htmlFor="mcp-key">MCP Key</Label>
                            <div className="flex gap-2">
                               <div className="relative flex-1">
                                  <Input
-                                    id="api-key"
-                                    type={showApiKey ? "text" : "password"}
-                                    value={apiKey}
-                                    onChange={(e) => setApiKey(e.target.value)}
-                                    placeholder="Enter your Notes API key"
+                                    id="mcp-key"
+                                    type={showMcpKey ? "text" : "password"}
+                                    value={mcpKey}
+                                    onChange={(e) => setMcpKey(e.target.value)}
+                                    placeholder="Enter your MCP key"
                                     className="pr-20"
                                  />
                                  <Button
@@ -170,9 +162,9 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                     variant="ghost"
                                     size="sm"
                                     className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                                    onClick={() => setShowApiKey(!showApiKey)}
+                                    onClick={() => setShowMcpKey(!showMcpKey)}
                                  >
-                                    {showApiKey ? (
+                                    {showMcpKey ? (
                                        <EyeOff className="h-4 w-4" />
                                     ) : (
                                        <Eye className="h-4 w-4" />
@@ -182,8 +174,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                               <Button
                                  variant="outline"
                                  size="sm"
-                                 onClick={handleCopyApiKey}
-                                 disabled={copied}
+                                 onClick={handleCopyMcpKey}
+                                 disabled={copied || !mcpKey}
                               >
                                  {copied ? (
                                     <Check className="h-4 w-4" />
@@ -194,13 +186,13 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                               <Button
                                  variant="outline"
                                  size="sm"
-                                 onClick={handleRegenerateApiKey}
-                                 disabled={isLoading}
+                                 onClick={handleSaveMcpKey}
+                                 disabled={isLoading || !mcpKey}
                               >
                                  {isLoading ? (
                                     <RefreshCw className="h-4 w-4 animate-spin" />
                                  ) : (
-                                    <RefreshCw className="h-4 w-4" />
+                                    <Check className="h-4 w-4" />
                                  )}
                               </Button>
                            </div>
@@ -209,41 +201,41 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         <Alert>
                            <Shield className="h-4 w-4" />
                            <AlertDescription>
-                              Your Notes API key is encrypted and stored
-                              securely. Never share it with others. This key
-                              will be used to authenticate API requests to your
-                              notes.
+                              Your MCP key is encrypted and stored securely.
+                              Never share it with others. This key will be used
+                              to authenticate MCP connections and enable
+                              enhanced AI capabilities.
                            </AlertDescription>
                         </Alert>
 
                         <Alert>
                            <Database className="h-4 w-4" />
                            <AlertDescription>
-                              <strong>Coming Soon:</strong> Notes API
-                              integration is currently in development. This
-                              feature will allow you to access your notes
-                              programmatically via REST API endpoints.
+                              <strong>MCP Integration:</strong> Model Context
+                              Protocol (MCP) enables secure communication
+                              between AI models and external tools. Configure
+                              your MCP key to unlock advanced AI features.
                            </AlertDescription>
                         </Alert>
-                     </CardContent>
-                  </Card>
+                     </div>
+                  </div>
                </div>
             );
 
          case "backup":
             return (
-               <div className="space-y-6">
-                  <Card>
-                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
+               <div className="space-y-6 p-4">
+                  <div className="space-y-4">
+                     <div className="space-y-2">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
                            <Cloud className="h-5 w-5" />
                            Google Drive Backup
-                        </CardTitle>
-                        <CardDescription>
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
                            Automatically backup your notes to Google Drive
-                        </CardDescription>
-                     </CardHeader>
-                     <CardContent className="space-y-4">
+                        </p>
+                     </div>
+                     <div className="space-y-4">
                         <div className="space-y-4">
                            <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                               <div className="space-y-1">
@@ -300,25 +292,25 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                               sync your notes across devices.
                            </AlertDescription>
                         </Alert>
-                     </CardContent>
-                  </Card>
+                     </div>
+                  </div>
                </div>
             );
 
          case "appearance":
             return (
-               <div className="space-y-6">
-                  <Card>
-                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
+               <div className="space-y-6 p-4">
+                  <div className="space-y-4">
+                     <div className="space-y-2">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
                            <Palette className="h-5 w-5" />
                            Theme & Appearance
-                        </CardTitle>
-                        <CardDescription>
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
                            Customize the look and feel of the application
-                        </CardDescription>
-                     </CardHeader>
-                     <CardContent className="space-y-4">
+                        </p>
+                     </div>
+                     <div className="space-y-4">
                         <div className="space-y-4">
                            <div className="flex items-center justify-between">
                               <div>
@@ -353,8 +345,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                               able to customize colors, fonts, and layouts.
                            </AlertDescription>
                         </Alert>
-                     </CardContent>
-                  </Card>
+                     </div>
+                  </div>
                </div>
             );
 

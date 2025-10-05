@@ -157,7 +157,7 @@ export function AIEnhancementButton({
             title="Lunos API key not configured. Please set LUNOS_API_KEY environment variable."
          >
             <AlertCircle className="h-4 w-4" />
-            AI Enhance
+            Enhance
          </Button>
       );
    }
@@ -176,7 +176,7 @@ export function AIEnhancementButton({
                ) : (
                   <Sparkles className="h-4 w-4" />
                )}
-               {isEnhancing ? "Enhancing..." : "AI Enhance"}
+               {isEnhancing ? "Enhancing..." : "Enhance"}
             </Button>
          </DropdownMenuTrigger>
          <DropdownMenuContent align="end" className="w-56">

@@ -31,6 +31,16 @@ import {
    DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+   AlertDialog,
+   AlertDialogAction,
+   AlertDialogCancel,
+   AlertDialogContent,
+   AlertDialogDescription,
+   AlertDialogFooter,
+   AlertDialogHeader,
+   AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
    Plus,
    Folder,
    FileText,
@@ -47,6 +57,7 @@ import {
 } from "lucide-react";
 import { useNotes } from "@/contexts/notes-context";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import {
    NoteSkeleton,
    FolderSkeleton,
@@ -59,6 +70,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onNoteSelect }: SidebarProps) {
+   const { toast } = useToast();
    const {
       notes,
       folders,
@@ -98,6 +110,11 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
       name: string;
    } | null>(null);
    const [renameFolderName, setRenameFolderName] = useState("");
+   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+   const [noteToDelete, setNoteToDelete] = useState<{
+      id: string;
+      title: string;
+   } | null>(null);
 
    const handleCreateNote = async () => {
       try {
@@ -146,9 +163,32 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
       onNoteSelect?.();
    };
 
-   const handleDeleteNote = async (note: any) => {
-      if (confirm(`Are you sure you want to delete "${note.title}"?`)) {
-         await deleteNote(note.id);
+   const handleDeleteNote = (note: any) => {
+      setNoteToDelete({ id: note.id, title: note.title });
+      setIsDeleteDialogOpen(true);
+   };
+
+   const confirmDeleteNote = async () => {
+      if (noteToDelete) {
+         try {
+            await deleteNote(noteToDelete.id);
+            setIsDeleteDialogOpen(false);
+            setNoteToDelete(null);
+
+            toast({
+               title: "Note deleted",
+               description: `"${noteToDelete.title}" has been deleted successfully.`,
+               variant: "success",
+            });
+         } catch (error) {
+            console.error("Failed to delete note:", error);
+            toast({
+               title: "Delete failed",
+               description:
+                  "There was an error deleting the note. Please try again.",
+               variant: "destructive",
+            });
+         }
       }
    };
 
@@ -577,8 +617,8 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                   )}
                </div>
 
-               {/* Scrollable notes container - height for at least 4 items (4 * ~80px + 8px spacing = ~328px) */}
-               <div className="h-[398px] overflow-y-auto scrollbar-thin">
+               {/* Scrollable notes container - increased height for better visibility */}
+               <div className="h-[600px] overflow-y-auto scrollbar-thin">
                   <div className="space-y-2">
                      {isLoading ? (
                         // Show skeleton loading for notes
@@ -598,70 +638,9 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                                        )}
                                        onClick={() => handleNoteSelect(note.id)}
                                     >
-                                       {/* Folder Path */}
-                                       {note.folderId && (
-                                          <div className="flex items-center text-xs text-muted-foreground mb-1">
-                                             {getFolderPath(note.folderId).map(
-                                                (folder, index) => (
-                                                   <span
-                                                      key={folder.id}
-                                                      className="flex items-center"
-                                                   >
-                                                      {index > 0 && (
-                                                         <ChevronRight className="h-3 w-3 mx-1" />
-                                                      )}
-                                                      <span className="truncate">
-                                                         {folder.name}
-                                                      </span>
-                                                   </span>
-                                                )
-                                             )}
-                                             <ChevronRight className="h-3 w-3 mx-1" />
-                                          </div>
-                                       )}
-
                                        <h4 className="font-medium text-sm mb-1 truncate">
                                           {note.title}
                                        </h4>
-                                       {note.labels.length > 0 && (
-                                          <div className="flex flex-wrap gap-1 mt-2">
-                                             {note.labels
-                                                .slice(0, 2)
-                                                .map((labelName) => {
-                                                   const label = labels.find(
-                                                      (l) =>
-                                                         l.name === labelName
-                                                   );
-                                                   return (
-                                                      <Badge
-                                                         key={labelName}
-                                                         variant="secondary"
-                                                         className="text-xs px-1.5 py-0.5"
-                                                         style={
-                                                            label
-                                                               ? {
-                                                                    backgroundColor:
-                                                                       label.color +
-                                                                       "20",
-                                                                    color: label.color,
-                                                                 }
-                                                               : {}
-                                                         }
-                                                      >
-                                                         {labelName}
-                                                      </Badge>
-                                                   );
-                                                })}
-                                             {note.labels.length > 2 && (
-                                                <Badge
-                                                   variant="secondary"
-                                                   className="text-xs px-1.5 py-0.5"
-                                                >
-                                                   +{note.labels.length - 2}
-                                                </Badge>
-                                             )}
-                                          </div>
-                                       )}
                                        <div className="text-xs text-muted-foreground mt-2">
                                           {new Date(
                                              note.updatedAt
@@ -699,6 +678,38 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                </div>
             </div>
          </ScrollArea>
+
+         {/* Delete Confirmation Dialog */}
+         <AlertDialog
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+         >
+            <AlertDialogContent>
+               <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Note</AlertDialogTitle>
+                  <AlertDialogDescription>
+                     Are you sure you want to delete "{noteToDelete?.title}"?
+                     This action cannot be undone.
+                  </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                  <AlertDialogCancel
+                     onClick={() => {
+                        setIsDeleteDialogOpen(false);
+                        setNoteToDelete(null);
+                     }}
+                  >
+                     Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                     onClick={confirmDeleteNote}
+                     className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                     Delete Note
+                  </AlertDialogAction>
+               </AlertDialogFooter>
+            </AlertDialogContent>
+         </AlertDialog>
       </div>
    );
 }

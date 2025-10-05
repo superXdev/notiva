@@ -268,96 +268,14 @@ export function SearchModal({
                                           setSelectedIndex(index)
                                        }
                                     >
-                                       {/* Folder Path */}
-                                       {result.item.folderId && (
-                                          <div className="flex items-center text-xs text-muted-foreground mb-1">
-                                             {getFolderPath(
-                                                result.item.folderId
-                                             ).map((folder, folderIndex) => (
-                                                <span
-                                                   key={folder.id}
-                                                   className="flex items-center"
-                                                >
-                                                   {folderIndex > 0 && (
-                                                      <ChevronRight className="h-3 w-3 mx-1" />
-                                                   )}
-                                                   <span className="truncate">
-                                                      {folder.name}
-                                                   </span>
-                                                </span>
-                                             ))}
-                                             <ChevronRight className="h-3 w-3 mx-1" />
-                                          </div>
-                                       )}
-
-                                       <div className="space-y-1">
-                                          <div className="flex items-start justify-between gap-2">
-                                             <h4 className="font-medium text-sm md:text-base truncate flex-1 min-w-0">
-                                                {result.item.title}
-                                             </h4>
-                                             <div className="text-xs text-muted-foreground flex-shrink-0 hidden sm:block">
-                                                {new Date(
-                                                   result.item.updatedAt
-                                                ).toLocaleDateString()}
-                                             </div>
-                                          </div>
-
-                                          {/* Labels and Date Row */}
-                                          <div className="flex items-center justify-between gap-2">
-                                             {/* Labels */}
-                                             {result.item.labels.length > 0 ? (
-                                                <div className="flex flex-wrap gap-1 flex-1 min-w-0">
-                                                   {result.item.labels
-                                                      .slice(0, 2)
-                                                      .map((labelName) => {
-                                                         const label =
-                                                            labels.find(
-                                                               (l) =>
-                                                                  l.name ===
-                                                                  labelName
-                                                            );
-                                                         return (
-                                                            <Badge
-                                                               key={labelName}
-                                                               variant="secondary"
-                                                               className="text-xs px-1.5 py-0.5"
-                                                               style={
-                                                                  label
-                                                                     ? {
-                                                                          backgroundColor:
-                                                                             label.color +
-                                                                             "20",
-                                                                          color: label.color,
-                                                                       }
-                                                                     : {}
-                                                               }
-                                                            >
-                                                               {labelName}
-                                                            </Badge>
-                                                         );
-                                                      })}
-                                                   {result.item.labels.length >
-                                                      2 && (
-                                                      <Badge
-                                                         variant="secondary"
-                                                         className="text-xs px-1.5 py-0.5"
-                                                      >
-                                                         +
-                                                         {result.item.labels
-                                                            .length - 2}
-                                                      </Badge>
-                                                   )}
-                                                </div>
-                                             ) : (
-                                                <div className="flex-1" />
-                                             )}
-
-                                             {/* Date on mobile */}
-                                             <div className="text-xs text-muted-foreground flex-shrink-0 sm:hidden">
-                                                {new Date(
-                                                   result.item.updatedAt
-                                                ).toLocaleDateString()}
-                                             </div>
+                                       <div className="flex items-start justify-between gap-2">
+                                          <h4 className="font-medium text-sm md:text-base truncate flex-1 min-w-0">
+                                             {result.item.title}
+                                          </h4>
+                                          <div className="text-xs text-muted-foreground flex-shrink-0">
+                                             {new Date(
+                                                result.item.updatedAt
+                                             ).toLocaleDateString()}
                                           </div>
                                        </div>
                                     </div>

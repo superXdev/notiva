@@ -8,6 +8,10 @@
   <i>Modern markdown note-taking platform with AI enhancement and professional publishing features.</i>
 </p>
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![Powered by Lunos](https://img.shields.io/badge/AI-Lunos-purple)](https://lunos.tech)
+[![Supabase](https://img.shields.io/badge/Backend-Supabase-green)](https://supabase.com)
+
 ---
 
 Notiva is a modern markdown note-taking platform that transforms how you capture, organize, and share your ideas. Built with Next.js 15 and Supabase, it combines the simplicity of markdown editing with hierarchical organization, content enhancement tools, and professional publishing capabilities.
@@ -21,7 +25,7 @@ Notiva is a modern markdown note-taking platform that transforms how you capture
 -  **🔍 Advanced Search** - Find notes instantly with powerful search capabilities
 -  **📄 PDF Export** - Export your notes as professional PDF documents
 -  **🌐 Publish & Share** - Publish notes as SEO-optimized web pages
--  **🤖 AI Enhancement** - Get intelligent suggestions to improve your content
+-  **🤖 AI Enhancement** - Improve writing with grammar correction, summarization, rewriting, and idea generation.
 -  **🌙 Dark/Light Mode** - Beautiful themes that adapt to your preference
 -  **📱 Mobile-First Design** - Seamless experience across all your devices
 
@@ -29,7 +33,7 @@ Notiva is a modern markdown note-taking platform that transforms how you capture
 
 -  **📥 Import Documents** - Import markdown files and various document types (PDF, Word, etc.)
 -  **🔍 Semantic Search** - Intelligent note discovery and content search
--  **🔌 REST API** - Third-party integrations and automation
+-  **🔌 REST API** - Designed for seamless integration with MCP systems and automation workflows
 -  **☁️ Google Drive Sync** - Automatic backup and cross-platform sync
 
 ---
