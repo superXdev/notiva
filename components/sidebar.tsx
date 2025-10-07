@@ -618,8 +618,8 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                </div>
 
                {/* Scrollable notes container - increased height for better visibility */}
-               <div className="h-[600px] overflow-y-auto scrollbar-thin">
-                  <div className="space-y-2">
+               <div className="h-[600px] overflow-y-auto scrollbar-thin pr-2">
+                  <div className="space-y-2 p-2">
                      {isLoading ? (
                         // Show skeleton loading for notes
                         Array.from({ length: 10 }).map((_, index) => (

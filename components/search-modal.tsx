@@ -252,7 +252,7 @@ export function SearchModal({
                         )}
                         <ScrollArea className="max-h-[350px] md:max-h-[300px]">
                            {searchResults.length > 0 ? (
-                              <div className="p-1 md:p-2" ref={resultsRef}>
+                              <div className="p-1 md:p-2 pr-1" ref={resultsRef}>
                                  {searchResults.map((result, index) => (
                                     <div
                                        key={result.item.id}

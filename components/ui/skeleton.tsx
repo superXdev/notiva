@@ -14,14 +14,9 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
 function NoteSkeleton({ className, ...props }: React.ComponentProps<"div">) {
    return (
       <div className={cn("p-2 md:p-3 rounded-lg border", className)} {...props}>
-         <Skeleton className="h-3 w-1/2 mb-1" />
+         {/* Title skeleton */}
          <Skeleton className="h-4 w-3/4 mb-2" />
-         <Skeleton className="h-3 w-full mb-1" />
-         <Skeleton className="h-3 w-2/3 mb-2" />
-         <div className="flex gap-1 mb-2">
-            <Skeleton className="h-5 w-12 rounded-full" />
-            <Skeleton className="h-5 w-16 rounded-full" />
-         </div>
+         {/* Date skeleton */}
          <Skeleton className="h-3 w-20" />
       </div>
    );

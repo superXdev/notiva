@@ -136,7 +136,12 @@ export function MobileNoteList({ onNoteSelect }: MobileNoteListProps) {
 
          {/* Notes List */}
          <ScrollArea className="flex-1 min-h-0">
-            <div className={cn("p-3", onNoteSelect ? "p-3" : "p-4")}>
+            <div
+               className={cn(
+                  "p-3 pr-1",
+                  onNoteSelect ? "p-3 pr-1" : "p-4 pr-1"
+               )}
+            >
                {filteredNotes.length === 0 ? (
                   <div className="text-center py-8">
                      <FileText className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
