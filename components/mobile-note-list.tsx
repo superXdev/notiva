@@ -174,10 +174,19 @@ export function MobileNoteList({ onNoteSelect }: MobileNoteListProps) {
                               {note.title}
                            </h3>
 
-                           {/* Date */}
-                           <div className="text-xs text-muted-foreground">
-                              {new Date(note.updatedAt).toLocaleDateString()}
-                           </div>
+                           {/* Labels */}
+                           {note.labels && note.labels.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                 {note.labels.map((label) => (
+                                    <span
+                                       key={label}
+                                       className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-secondary text-secondary-foreground"
+                                    >
+                                       {label}
+                                    </span>
+                                 ))}
+                              </div>
+                           )}
                         </div>
                      ))}
                   </div>

@@ -189,7 +189,7 @@ export function SearchModal({
             <DialogPrimitive.Content
                className={cn(
                   "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-[55] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
-                  "w-[95vw] max-w-2xl max-h-[90vh] md:max-h-[80vh] p-0"
+                  "w-[95vw] max-w-2xl max-h-[95vh] md:max-h-[90vh] p-0"
                )}
                onKeyDown={handleKeyDown}
             >
@@ -250,14 +250,14 @@ export function SearchModal({
                               Recent notes
                            </div>
                         )}
-                        <ScrollArea className="max-h-[350px] md:max-h-[300px]">
+                        <ScrollArea className="max-h-[500px] md:max-h-[450px]">
                            {searchResults.length > 0 ? (
                               <div className="p-1 md:p-2 pr-1" ref={resultsRef}>
                                  {searchResults.map((result, index) => (
                                     <div
                                        key={result.item.id}
                                        className={cn(
-                                          "p-2 md:p-3 rounded-md cursor-pointer transition-colors",
+                                          "p-3 md:p-4 rounded-md cursor-pointer transition-colors",
                                           "hover:bg-accent",
                                           selectedIndex === index && "bg-accent"
                                        )}
@@ -268,15 +268,26 @@ export function SearchModal({
                                           setSelectedIndex(index)
                                        }
                                     >
-                                       <div className="flex items-start justify-between gap-2">
-                                          <h4 className="font-medium text-sm md:text-base truncate flex-1 min-w-0">
+                                       <div className="flex flex-col gap-2">
+                                          <h4 className="font-medium text-sm md:text-base truncate">
                                              {result.item.title}
                                           </h4>
-                                          <div className="text-xs text-muted-foreground flex-shrink-0">
-                                             {new Date(
-                                                result.item.updatedAt
-                                             ).toLocaleDateString()}
-                                          </div>
+                                          {/* Labels */}
+                                          {result.item.labels &&
+                                             result.item.labels.length > 0 && (
+                                                <div className="flex flex-wrap gap-1">
+                                                   {result.item.labels.map(
+                                                      (label) => (
+                                                         <span
+                                                            key={label}
+                                                            className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-secondary text-secondary-foreground"
+                                                         >
+                                                            {label}
+                                                         </span>
+                                                      )
+                                                   )}
+                                                </div>
+                                             )}
                                        </div>
                                     </div>
                                  ))}

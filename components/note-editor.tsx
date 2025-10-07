@@ -58,7 +58,7 @@ export function NoteEditor() {
    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
    const [isExportingPDF, setIsExportingPDF] = useState(false);
    const [isPublishing, setIsPublishing] = useState(false);
-   const [currentTab, setCurrentTab] = useState("edit");
+   const [currentTab, setCurrentTab] = useState("preview");
    const [contentHistory, setContentHistory] = useState<string[]>([]);
    const [historyIndex, setHistoryIndex] = useState(-1);
    const [isCopied, setIsCopied] = useState(false);
@@ -71,6 +71,8 @@ export function NoteEditor() {
          // Reset history when switching to a new note
          setContentHistory([]);
          setHistoryIndex(-1);
+         // Switch to preview mode when a note is selected
+         setCurrentTab("preview");
       } else {
          setTitle("");
          setContent("");
@@ -598,7 +600,7 @@ export function NoteEditor() {
          {/* Editor */}
          <div className="flex-1 min-h-0 overflow-hidden">
             <Tabs
-               defaultValue="edit"
+               defaultValue="preview"
                value={currentTab}
                onValueChange={setCurrentTab}
                className="h-full flex flex-col"

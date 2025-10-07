@@ -641,11 +641,20 @@ export function Sidebar({ onNoteSelect }: SidebarProps) {
                                        <h4 className="font-medium text-sm mb-1 truncate">
                                           {note.title}
                                        </h4>
-                                       <div className="text-xs text-muted-foreground mt-2">
-                                          {new Date(
-                                             note.updatedAt
-                                          ).toLocaleDateString()}
-                                       </div>
+                                       {/* Labels */}
+                                       {note.labels &&
+                                          note.labels.length > 0 && (
+                                             <div className="flex flex-wrap gap-1 mt-2">
+                                                {note.labels.map((label) => (
+                                                   <span
+                                                      key={label}
+                                                      className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs bg-secondary text-secondary-foreground"
+                                                   >
+                                                      {label}
+                                                   </span>
+                                                ))}
+                                             </div>
+                                          )}
                                     </div>
                                  </ContextMenuTrigger>
                                  <ContextMenuContent>
