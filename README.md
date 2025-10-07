@@ -194,6 +194,108 @@ docker-compose down
 -  Configured Supabase project
 -  Domain name (recommended for production)
 
+## ☁️ Cloudflare Workers Deployment
+
+Deploy Notiva to Cloudflare Workers for global edge performance and automatic scaling.
+
+### Prerequisites
+
+-  Cloudflare account
+-  Wrangler CLI installed (`npm install -g wrangler`)
+-  Configured Supabase project
+
+### Setup
+
+1. **Install Wrangler CLI**
+
+   ```bash
+   npm install -g wrangler
+   ```
+
+2. **Login to Cloudflare**
+
+   ```bash
+   wrangler login
+   ```
+
+3. **Configure environment variables**
+
+   Create `.env.local` in the project root:
+
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+   NEXT_PUBLIC_SITE_URL=https://your-worker.your-subdomain.workers.dev
+
+   # Lunos API Key (for AI Enhancement feature)
+   LUNOS_API_KEY=your_lunos_api_key
+   ```
+
+   > **Note**: The AI Enhancement feature requires a valid Lunos API key. Without it, the AI Enhance button will be disabled. You can get your API key from the [Lunos dashboard](https://lunos.tech/dashboard/api-keys).
+
+4. **Deploy to Cloudflare Workers**
+
+   ```bash
+   # Build and deploy
+   pnpm deploy
+   ```
+
+   Or deploy manually:
+
+   ```bash
+   # Build the application
+   pnpm build
+
+   # Deploy to Cloudflare Workers
+   opennextjs-cloudflare build && opennextjs-cloudflare deploy
+   ```
+
+5. **Preview deployment**
+
+   ```bash
+   # Preview locally before deploying
+   pnpm preview
+   ```
+
+### Custom Domain (Optional)
+
+1. **Add custom domain in Cloudflare dashboard**
+
+   -  Go to Workers & Pages > Your Worker > Settings > Triggers
+   -  Add custom domain
+
+2. **Update environment variables**
+
+   ```env
+   NEXT_PUBLIC_SITE_URL=https://your-custom-domain.com
+   ```
+
+3. **Redeploy**
+   ```bash
+   pnpm deploy
+   ```
+
+### Management Commands
+
+```bash
+# View deployment logs
+wrangler tail
+
+# Update application
+git pull && pnpm deploy
+
+# Delete deployment
+wrangler delete notiva
+```
+
+### Benefits of Cloudflare Workers
+
+-  **🌍 Global Edge Network** - Your app runs close to users worldwide
+-  **⚡ Lightning Fast** - Sub-100ms response times
+-  **💰 Cost Effective** - Pay only for requests, not idle time
+-  **🔒 Built-in Security** - DDoS protection and security features
+-  **📈 Auto Scaling** - Handles traffic spikes automatically
+
 ## 🤝 Contributing
 
 1. Fork the repository

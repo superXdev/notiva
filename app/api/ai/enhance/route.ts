@@ -101,7 +101,7 @@ Return only the formatted text without any explanations.`;
       }
 
       const completion = await openai.chat.completions.create({
-         model: "google/gemini-2.0-flash",
+         model: "openai/gpt-4.1-mini",
          messages: [
             {
                role: "system",
