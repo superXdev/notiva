@@ -136,36 +136,51 @@ pnpm start
 
 ## 🐳 Docker Deployment
 
-### Quick Docker Setup
+### Environment Setup
 
-1. **Create environment file**
+First, create your environment file:
 
-   ```bash
-   cp .env.production .env.local
-   ```
+```bash
+# Create environment file
+cp .env.production .env.local
+```
 
-   Edit `.env.local` with your values:
+Edit `.env.local` with your values:
 
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
-   NEXT_PUBLIC_SITE_URL=https://your-domain.com
-   # Get your API key from: https://lunos.tech/dashboard/api-keys
-   LUNOS_API_KEY=your_lunos_api_key
-   ```
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+# Get your API key from: https://lunos.tech/dashboard/api-keys
+LUNOS_API_KEY=your_lunos_api_key
+```
 
-   > **Note**: The AI Enhancement feature requires a valid Lunos API key. Without it, the AI Enhance button will be disabled. You can get your API key from the [Lunos dashboard](https://lunos.tech/dashboard/api-keys).
+> **Note**: The AI Enhancement feature requires a valid Lunos API key. Without it, the AI Enhance button will be disabled. You can get your API key from the [Lunos dashboard](https://lunos.tech/dashboard/api-keys).
 
-2. **Deploy with Docker Compose**
+### Deployment Options
 
-   ```bash
-   docker-compose up -d
-   ```
+#### Option 1: Use Pre-built Image (Recommended)
 
-3. **Access your app**
-   Open http://localhost:3000
+```bash
+# Pull the latest image
+docker pull frdblock/notiva:latest
 
-### Manual Docker Commands
+# Run the container
+docker run -d \
+  --name notiva-app \
+  -p 3000:3000 \
+  --env-file .env.local \
+  frdblock/notiva:latest
+```
+
+#### Option 2: Build from Source
+
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+```
+
+#### Option 3: Manual Build
 
 ```bash
 # Build image
@@ -174,6 +189,10 @@ docker build -t notiva .
 # Run container
 docker run -d --name notiva-app -p 3000:3000 --env-file .env.local notiva
 ```
+
+### Access Your App
+
+Open http://localhost:3000 in your browser.
 
 ### Production Management
 
@@ -193,6 +212,8 @@ docker-compose down
 -  Docker & Docker Compose
 -  Configured Supabase project
 -  Domain name (recommended for production)
+
+> **💡 Pro Tip**: Use the pre-built Docker image from [Docker Hub](https://hub.docker.com/r/frdblock/notiva) for faster deployment without building from source.
 
 ## ☁️ Cloudflare Workers Deployment
 
