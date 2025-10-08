@@ -107,6 +107,33 @@ Notiva is a modern markdown note-taking platform that transforms how you capture
 -  **🤖 AI**: Lunos AI
 -  **📦 Package Manager**: pnpm
 
+## 📊 User Limitations & Database Activity
+
+Notiva enforces usage limits and security policies to ensure fair usage and data protection.
+
+### **Usage Limits Per User**
+
+| Resource            | Limit                   | Purpose                                         |
+| ------------------- | ----------------------- | ----------------------------------------------- |
+| **Notes**           | 1,000 notes             | Prevents database bloat and ensures performance |
+| **Folders**         | 50 folders              | Maintains organizational structure efficiency   |
+| **Labels**          | 100 labels              | Keeps labeling system manageable                |
+| **AI Enhancements** | Tracked (no hard limit) | Monitor AI usage for potential future limits    |
+
+### **Database Security**
+
+-  **User Data Isolation**: Each user can only access their own content
+-  **Published Content**: Users can view any published notes, but only edit their own
+-  **Automatic Enforcement**: Database-level security prevents unauthorized access
+-  **Usage Tracking**: Real-time monitoring of resource usage with automatic limits
+
+### **Key Features**
+
+-  **Creation Limits**: Database prevents creation when limits are reached
+-  **Performance**: Optimized queries with proper database indexes
+-  **Data Integrity**: Automatic cleanup and timestamp tracking
+-  **AI Integration**: Requires Lunos API key, graceful degradation when unavailable
+
 ## 📁 Project Structure
 
 ```
