@@ -204,7 +204,7 @@ docker run -d \
 
 ```bash
 # Build and run with Docker Compose
-docker-compose up -d
+docker compose up -d
 ```
 
 #### Option 3: Manual Build
@@ -225,13 +225,13 @@ Open http://localhost:3000 in your browser.
 
 ```bash
 # View logs
-docker-compose logs -f notiva
+docker compose logs -f notiva
 
 # Update application
-docker-compose down && git pull && docker-compose up -d --build
+docker compose down && git pull && docker compose up -d --build
 
 # Stop application
-docker-compose down
+docker compose down
 ```
 
 ### Requirements
